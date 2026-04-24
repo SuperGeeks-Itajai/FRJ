@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "./supabaseClient"
-import ListaModulos from "./components/ListaModulos"
-import TelaModulo from "./components/TelaModulo"
+import ListaModulos from "./pages/ListaModulos"
+import TelaModulo from "./pages/TelaModulo"
 
 export default function App() {
   const [modulos, setModulos] = useState([])
