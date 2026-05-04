@@ -4,25 +4,34 @@ export default function TabelaModulos({ modulos, aulas }) {
   }
 
   return (
-    <table className="table table-dark table-hover mt-4">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Módulo</th>
-          <th>Ferramentas</th>
-          <th>Aulas</th>
-        </tr>
-      </thead>
-      <tbody>
-        {modulos.map((m, i) => (
-          <tr key={m.id}>
-            <th>{i + 1}</th>
-            <td>{m.nome}</td>
-            <td>{m.ferramentas}</td>
-            <td>{contarAulas(m.id)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="card bg-black text-white border-secondary">
+      <div className="card-body">
+
+        <h5 className="mb-3">Módulos</h5>
+
+        <table className="table table-dark table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Módulo</th>
+              <th>Ferramentas</th>
+              <th>Aulas</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {modulos.map((m, i) => (
+              <tr key={m.id}>
+                <td>{i + 1}</td>
+                <td>{m.nome}</td>
+                <td>{m.ferramentas}</td>
+                <td>{contarAulas(m.id)}</td>
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
+    </div>
   )
 }
