@@ -1,48 +1,99 @@
-export default function FormAula({
-  nome,
-  setNome,
-  descricao,
-  setDescricao,
-  adicionarAula
+export default function TabelaAulas({
+  aulasPaginadas,
+  pagina,
+  totalPaginas,
+  setPagina,
+  abrirModal,
+  inicio
 }) {
 
   return (
-    <div className="card bg-black border-secondary mb-4">
+
+    <div className="card bg-black border-secondary">
 
       <div className="card-body">
 
         <h5 className="text-white mb-3">
-          Nova Aula
+          Aulas
         </h5>
 
-        <input
-          className="form-control mb-3"
-          placeholder="Nome da aula"
-          value={nome}
-          onChange={(e) =>
-            setNome(e.target.value)
-          }
-        />
+        <div className="table-responsive">
 
-        <textarea
-          className="form-control mb-3"
-          rows="4"
-          placeholder="Descrição da aula"
-          value={descricao}
-          onChange={(e) =>
-            setDescricao(e.target.value)
-          }
-        />
+          <table className="table table-dark table-hover align-middle">
 
-        <button
-          className="btn btn-danger"
-          onClick={adicionarAula}
-        >
-          Adicionar Aula
-        </button>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {aulasPaginadas.map((aula, index) => (
+
+                <tr key={aula.id}>
+
+                  <td>{inicio + index + 1}</td>
+
+                  <td>{aula.nome}</td>
+
+                  <td>
+                    {aula.descricao || "Sem descrição"}
+                  </td>
+
+                  <td>
+
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => abrirModal(aula)}
+                    >
+                      Editar
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        {/* PAGINAÇÃO */}
+
+        <div className="d-flex justify-content-between align-items-center mt-3">
+
+          <button
+            className="btn btn-outline-light"
+            disabled={pagina === 1}
+            onClick={() => setPagina(pagina - 1)}
+          >
+            Anterior
+          </button>
+
+          <span className="text-white">
+            Página {pagina} de {totalPaginas}
+          </span>
+
+          <button
+            className="btn btn-outline-light"
+            disabled={pagina === totalPaginas}
+            onClick={() => setPagina(pagina + 1)}
+          >
+            Próxima
+          </button>
+
+        </div>
 
       </div>
 
     </div>
+
   )
 }

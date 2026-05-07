@@ -7,6 +7,7 @@ export default function FormAula({
 }) {
 
   return (
+
     <div className="card bg-black border-secondary mb-4">
 
       <div className="card-body">
@@ -44,5 +45,6 @@ export default function FormAula({
       </div>
 
     </div>
+
   )
 }
