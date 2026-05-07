@@ -35,7 +35,7 @@ export default function ModuloDetalhe() {
 
   const [pagina, setPagina] = useState(1)
 
-  const aulasPorPagina = 10
+  const aulasPorPagina = 7
 
   // =========================
   // CARREGAR DADOS
