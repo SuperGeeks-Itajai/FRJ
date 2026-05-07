@@ -1,34 +1,79 @@
 import { useEffect, useState } from "react"
+import { Routes, Route } from "react-router-dom"
+
 import { supabase } from "./supabaseClient"
-import Dashboard from "./components/Dashboard"
-import Navbar from "./components/navbar"
+
+import Navbar from "./components/Navbar"
+
+import Dashboard from "./pages/Dashboard"
+import Modulos from "./pages/Modulos"
+import ModuloDetalhe from "./pages/ModuloDetalhe"
 
 export default function App() {
+
   const [modulos, setModulos] = useState([])
   const [aulas, setAulas] = useState([])
 
   useEffect(() => {
-    async function fetchData() {
-      const { data: mod } = await supabase.from("modulos").select("*")
-      const { data: aulasData } = await supabase.from("aulas").select("*")
 
-      setModulos(mod || [])
+    async function carregarDados() {
+
+      const { data: modulosData } =
+        await supabase
+          .from("modulos")
+          .select("*")
+
+      const { data: aulasData } =
+        await supabase
+          .from("aulas")
+          .select("*")
+
+      setModulos(modulosData || [])
       setAulas(aulasData || [])
+
     }
 
-    fetchData()
+    carregarDados()
+
   }, [])
 
   return (
-<div className="d-flex bg-dark text-white">
+    <>
       <Navbar />
 
       <div
-        className="flex-grow-1 p-4 bg-dark text-white"
-         style={{ minHeight: "100vh", marginTop: "50px"}} 
+        className="container-fluid bg-dark text-white"
+        style={{
+          minHeight: "100vh",
+          paddingTop: "80px"
+        }}
       >
-        <Dashboard modulos={modulos} aulas={aulas} />
+
+        <Routes>
+
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                modulos={modulos}
+                aulas={aulas}
+              />
+            }
+          />
+
+          <Route
+            path="/modulos"
+            element={<Modulos />}
+          />
+
+          <Route
+            path="/modulos/:id"
+            element={<ModuloDetalhe />}
+          />
+
+        </Routes>
+
       </div>
-    </div>
+    </>
   )
 }
