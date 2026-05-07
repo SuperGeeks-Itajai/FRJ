@@ -9,7 +9,9 @@ import FormAula from "../components/FormAula"
 import TabelaAulas from "../components/TabelaAulas"
 import ModalAula from "../components/ModalAula"
 
-export default function ModuloDetalhe() {
+export default function ModuloDetalhe({
+  carregarDados
+}) {
 
   const { id } = useParams()
 
@@ -35,7 +37,7 @@ export default function ModuloDetalhe() {
 
   const [pagina, setPagina] = useState(1)
 
-  const aulasPorPagina = 7
+  const aulasPorPagina = 5
 
   // =========================
   // CARREGAR DADOS
@@ -89,6 +91,8 @@ export default function ModuloDetalhe() {
       ...aulas,
       data[0]
     ])
+
+    await carregarDados()
 
     setNome("")
     setDescricao("")
@@ -159,6 +163,8 @@ export default function ModuloDetalhe() {
 
     setAulas(atualizadas)
 
+    await carregarDados()
+
     fecharModal()
   }
 
@@ -177,6 +183,8 @@ export default function ModuloDetalhe() {
         a => a.id !== aulaSelecionada.id
       )
     )
+
+    await carregarDados()
 
     fecharModal()
   }
