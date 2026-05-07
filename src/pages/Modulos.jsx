@@ -22,7 +22,7 @@ export default function Modulos() {
   const [nome, setNome] = useState("");
   const [ferramentas, setFerramentas] = useState("");
 
-  const porPagina = 10;
+  const porPagina = 5;
 
   // =========================
   // CARREGAR DADOS
