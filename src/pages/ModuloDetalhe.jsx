@@ -1,61 +1,78 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import * as bootstrap from "bootstrap";
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 
-import { supabase } from "../supabaseClient";
+import * as bootstrap from "bootstrap"
+
+import { supabase } from "../supabaseClient"
+
+import FormAula from "../components/FormAula"
+import TabelaAulas from "../components/TabelaAulas"
+import ModalAula from "../components/ModalAula"
 
 export default function ModuloDetalhe() {
-  const { id } = useParams();
 
-  const [modulo, setModulo] = useState(null);
-  const [aulas, setAulas] = useState([]);
+  const { id } = useParams()
 
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
+  // =========================
+  // STATES
+  // =========================
+  const [modulo, setModulo] = useState(null)
 
-  const [busca, setBusca] = useState("");
+  const [aulas, setAulas] = useState([])
 
-  const [pagina, setPagina] = useState(1);
+  const [nome, setNome] = useState("")
+  const [descricao, setDescricao] =
+    useState("")
 
-  const [aulaSelecionada, setAulaSelecionada] = useState(null);
+  const [aulaSelecionada, setAulaSelecionada] =
+    useState(null)
 
-  const [editandoNome, setEditandoNome] = useState("");
-  const [editandoDescricao, setEditandoDescricao] = useState("");
+  const [novoNome, setNovoNome] =
+    useState("")
 
-  const aulasPorPagina = 10;
+  const [novaDescricao, setNovaDescricao] =
+    useState("")
+
+  const [pagina, setPagina] = useState(1)
+
+  const aulasPorPagina = 10
 
   // =========================
   // CARREGAR DADOS
   // =========================
   useEffect(() => {
-    async function carregarDados() {
-      // módulo
-      const { data: moduloData } = await supabase
-        .from("modulos")
-        .select("*")
-        .eq("id", id)
-        .single();
 
-      setModulo(moduloData);
+    async function carregar() {
 
-      // aulas
-      const { data: aulasData } = await supabase
-        .from("aulas")
-        .select("*")
-        .eq("modulo_id", id)
-        .order("nome");
+      const { data: moduloData } =
+        await supabase
+          .from("modulos")
+          .select("*")
+          .eq("id", id)
+          .single()
 
-      setAulas(aulasData || []);
+      const { data: aulasData } =
+        await supabase
+          .from("aulas")
+          .select("*")
+          .eq("modulo_id", id)
+          .order("id")
+
+      setModulo(moduloData)
+      setAulas(aulasData || [])
+
     }
 
-    carregarDados();
-  }, [id]);
+    carregar()
+
+  }, [id])
 
   // =========================
-  // CRIAR AULA
+  // ADICIONAR AULA
   // =========================
   async function adicionarAula() {
-    if (!nome) return;
+
+    if (!nome) return
 
     const { data } = await supabase
       .from("aulas")
@@ -63,262 +80,178 @@ export default function ModuloDetalhe() {
         {
           nome,
           descricao,
-          modulo_id: id,
-        },
+          modulo_id: id
+        }
       ])
-      .select();
+      .select()
 
-    setAulas([...aulas, data[0]]);
+    setAulas([
+      ...aulas,
+      data[0]
+    ])
 
-    setNome("");
-    setDescricao("");
+    setNome("")
+    setDescricao("")
   }
 
   // =========================
   // ABRIR MODAL
   // =========================
   function abrirModal(aula) {
-    setAulaSelecionada(aula);
 
-    setEditandoNome(aula.nome || "");
-    setEditandoDescricao(aula.descricao || "");
+    setAulaSelecionada(aula)
 
-    const modal = new bootstrap.Modal(document.getElementById("modalAula"));
+    setNovoNome(aula.nome || "")
 
-    modal.show();
-  }
+    setNovaDescricao(
+      aula.descricao || ""
+    )
 
-  // =========================
-  // EDITAR AULA
-  // =========================
-  async function salvarEdicao() {
-    await supabase
-      .from("aulas")
-      .update({
-        nome: editandoNome,
-        descricao: editandoDescricao,
-      })
-      .eq("id", aulaSelecionada.id);
+    const modal = new bootstrap.Modal(
+      document.getElementById("modalAula")
+    )
 
-    const atualizadas = aulas.map((a) => {
-      if (a.id === aulaSelecionada.id) {
-        return {
-          ...a,
-          nome: editandoNome,
-          descricao: editandoDescricao,
-        };
-      }
-
-      return a;
-    });
-
-    setAulas(atualizadas);
-
-    fecharModal();
-  }
-
-  // =========================
-  // DELETAR AULA
-  // =========================
-  async function deletarAula() {
-    await supabase.from("aulas").delete().eq("id", aulaSelecionada.id);
-
-    setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
-
-    fecharModal();
+    modal.show()
   }
 
   // =========================
   // FECHAR MODAL
   // =========================
   function fecharModal() {
-    const modalElement = document.getElementById("modalAula");
 
-    const modal = bootstrap.Modal.getInstance(modalElement);
+    const modalElement =
+      document.getElementById("modalAula")
 
-    modal.hide();
+    const modal =
+      bootstrap.Modal.getInstance(modalElement)
+
+    modal.hide()
   }
 
   // =========================
-  // FILTRO
+  // EDITAR
   // =========================
-  const aulasFiltradas = aulas.filter((a) =>
-    a.nome.toLowerCase().includes(busca.toLowerCase()),
-  );
+  async function salvarEdicao() {
+
+    await supabase
+      .from("aulas")
+      .update({
+        nome: novoNome,
+        descricao: novaDescricao
+      })
+      .eq("id", aulaSelecionada.id)
+
+    const atualizadas = aulas.map(a => {
+
+      if (a.id === aulaSelecionada.id) {
+
+        return {
+          ...a,
+          nome: novoNome,
+          descricao: novaDescricao
+        }
+
+      }
+
+      return a
+
+    })
+
+    setAulas(atualizadas)
+
+    fecharModal()
+  }
+
+  // =========================
+  // EXCLUIR
+  // =========================
+  async function deletarAula() {
+
+    await supabase
+      .from("aulas")
+      .delete()
+      .eq("id", aulaSelecionada.id)
+
+    setAulas(
+      aulas.filter(
+        a => a.id !== aulaSelecionada.id
+      )
+    )
+
+    fecharModal()
+  }
 
   // =========================
   // PAGINAÇÃO
   // =========================
-  const inicio = (pagina - 1) * aulasPorPagina;
-  const fim = inicio + aulasPorPagina;
+  const inicio =
+    (pagina - 1) * aulasPorPagina
 
-  const aulasPaginadas = aulasFiltradas.slice(inicio, fim);
+  const fim = inicio + aulasPorPagina
 
-  const totalPaginas = Math.ceil(aulasFiltradas.length / aulasPorPagina);
+  const aulasPaginadas =
+    aulas.slice(inicio, fim)
 
-  // =========================
-  // LOADING
-  // =========================
+  const totalPaginas =
+    Math.ceil(
+      aulas.length / aulasPorPagina
+    )
+
   if (!modulo) {
+
     return (
-      <div className="container">
-        <h3>Carregando...</h3>
-      </div>
-    );
+      <p className="text-white">
+        Carregando...
+      </p>
+    )
+
   }
 
   return (
     <div className="container">
+
       {/* TOPO */}
       <div className="mb-4">
-        <h1 className="text-danger">{modulo.nome}</h1>
 
-        <p className="mb-1">
-          <strong>Ferramentas:</strong> {modulo.ferramentas}
+        <h1 className="text-danger">
+          {modulo.nome}
+        </h1>
+
+        <p className="text-secondary">
+          {modulo.ferramentas}
         </p>
 
-        <p>
-          <strong>Total de aulas:</strong> {aulas.length}
-        </p>
       </div>
 
-      {/* FORM NOVA AULA */}
-      <div className="card bg-black border-secondary mb-4">
-        <div className="card-body">
-          <h5 className="mb-3">Nova Aula</h5>
-
-          <input
-            className="form-control mb-2"
-            placeholder="Nome da aula"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-          />
-
-          <textarea
-            className="form-control mb-3"
-            placeholder="Descrição"
-            rows="4"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-          />
-
-          <button className="btn btn-danger" onClick={adicionarAula}>
-            Adicionar Aula
-          </button>
-        </div>
-      </div>
-
-      {/* BUSCA */}
-      <div className="mb-3">
-        <input
-          className="form-control"
-          placeholder="Buscar aula..."
-          value={busca}
-          onChange={(e) => {
-            setBusca(e.target.value);
-            setPagina(1);
-          }}
-        />
-      </div>
+      {/* FORM */}
+      <FormAula
+        nome={nome}
+        setNome={setNome}
+        descricao={descricao}
+        setDescricao={setDescricao}
+        adicionarAula={adicionarAula}
+      />
 
       {/* TABELA */}
-      <div className="card bg-black border-secondary">
-        <div className="card-body">
-          <table className="table table-dark table-hover align-middle">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Nome</th>
-                <th>Descrição</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {aulasPaginadas.map((aula, index) => (
-                <tr
-                  key={aula.id}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => abrirModal(aula)}
-                >
-                  <td>{inicio + index + 1}</td>
-
-                  <td>{aula.nome}</td>
-
-                  <td>{aula.descricao?.slice(0, 80)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* PAGINAÇÃO */}
-          <div className="d-flex justify-content-center gap-2 mt-3">
-            <button
-              className="btn btn-outline-light"
-              disabled={pagina === 1}
-              onClick={() => setPagina(pagina - 1)}
-            >
-              ←
-            </button>
-
-            <span className="align-self-center text-white">
-              Página {pagina} de {totalPaginas || 1}
-            </span>
-            <button
-              className="btn btn-outline-light"
-              disabled={pagina === totalPaginas || totalPaginas === 0}
-              onClick={() => setPagina(pagina + 1)}
-            >
-              →
-            </button>
-          </div>
-        </div>
-      </div>
+      <TabelaAulas
+        aulasPaginadas={aulasPaginadas}
+        pagina={pagina}
+        totalPaginas={totalPaginas}
+        setPagina={setPagina}
+        abrirModal={abrirModal}
+        inicio={inicio}
+      />
 
       {/* MODAL */}
-      <div className="modal fade" id="modalAula" tabIndex="-1">
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content bg-black text-white">
-            <div className="modal-header">
-              <h5 className="modal-title">Editar Aula</h5>
+      <ModalAula
+        novoNome={novoNome}
+        setNovoNome={setNovoNome}
+        novaDescricao={novaDescricao}
+        setNovaDescricao={setNovaDescricao}
+        salvarEdicao={salvarEdicao}
+        deletarAula={deletarAula}
+      />
 
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-
-            <div className="modal-body">
-              <input
-                className="form-control mb-3"
-                value={editandoNome}
-                onChange={(e) => setEditandoNome(e.target.value)}
-              />
-
-              <textarea
-                className="form-control"
-                rows="8"
-                value={editandoDescricao}
-                onChange={(e) => setEditandoDescricao(e.target.value)}
-              />
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" data-bs-dismiss="modal">
-                Cancelar
-              </button>
-
-              <button className="btn btn-danger" onClick={deletarAula}>
-                Excluir
-              </button>
-
-              <button className="btn btn-success" onClick={salvarEdicao}>
-                Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  );
+  )
 }

@@ -1,64 +1,62 @@
-import { supabase } from "../supabaseClient"
-
 export default function ModalAula({
-  aula,
-  nome,
-  setNome,
-  descricao,
-  setDescricao,
-  fechar,
-  atualizarLista
+  novoNome,
+  setNovoNome,
+  novaDescricao,
+  setNovaDescricao,
+  salvarEdicao,
+  deletarAula
 }) {
-  if (!aula) return null
-
-  async function salvar() {
-    await supabase
-      .from("aulas")
-      .update({ nome, descricao })
-      .eq("id", aula.id)
-
-    fechar()
-    await atualizarLista()
-  }
-
-  async function deletar() {
-    await supabase
-      .from("aulas")
-      .delete()
-      .eq("id", aula.id)
-
-    fechar()
-    await atualizarLista()
-  }
 
   return (
-    <div className="modal fade" id="modalAula" tabIndex="-1">
+    <div
+      className="modal fade"
+      id="modalAula"
+      tabIndex="-1"
+    >
+
       <div className="modal-dialog">
-        <div className="modal-content bg-dark text-white">
+
+        <div className="modal-content bg-black text-white">
 
           <div className="modal-header">
-            <h5 className="modal-title">Editar Aula</h5>
+
+            <h5 className="modal-title">
+              Editar Aula
+            </h5>
+
             <button
+              type="button"
               className="btn-close btn-close-white"
               data-bs-dismiss="modal"
             ></button>
+
           </div>
 
           <div className="modal-body">
+
             <input
-              className="form-control mb-2"
-              value={nome}
-              onChange={e => setNome(e.target.value)}
+              className="form-control mb-3"
+              value={novoNome}
+              onChange={(e) =>
+                setNovoNome(e.target.value)
+              }
             />
 
             <textarea
               className="form-control"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
+              rows="4"
+              value={novaDescricao}
+              onChange={(e) =>
+                setNovaDescricao(
+                  e.target.value
+                )
+              }
             />
+
           </div>
 
           <div className="modal-footer">
+
             <button
               className="btn btn-secondary"
               data-bs-dismiss="modal"
@@ -66,17 +64,26 @@ export default function ModalAula({
               Cancelar
             </button>
 
-            <button className="btn btn-danger" onClick={deletar}>
+            <button
+              className="btn btn-danger"
+              onClick={deletarAula}
+            >
               Excluir
             </button>
 
-            <button className="btn btn-primary" onClick={salvar}>
+            <button
+              className="btn btn-success"
+              onClick={salvarEdicao}
+            >
               Salvar
             </button>
+
           </div>
 
         </div>
+
       </div>
+
     </div>
   )
 }
