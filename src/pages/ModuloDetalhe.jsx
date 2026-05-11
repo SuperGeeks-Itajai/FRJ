@@ -8,25 +8,21 @@ import { supabase } from "../supabaseClient";
 import FormAula from "../components/FormAula";
 import TabelaAulas from "../components/TabelaAulas";
 import ModalAula from "../components/ModalAula";
-
 import Toast from "../components/Toast";
+import ModalConfirmacao from "../components/ModalConfirmacao";
 
-export default function ModuloDetalhe({ carregarDados }) {
+export default function ModuloDetalhe() {
   const { id } = useParams();
 
   // =========================
   // STATES
   // =========================
-  const [toastMensagem, setToastMensagem] = useState("");
-
-  const [toastTipo, setToastTipo] = useState("sucesso");
-
-  const [mostrarToast, setMostrarToast] = useState(false);
   const [modulo, setModulo] = useState(null);
 
   const [aulas, setAulas] = useState([]);
 
   const [nome, setNome] = useState("");
+
   const [descricao, setDescricao] = useState("");
 
   const [aulaSelecionada, setAulaSelecionada] = useState(null);
@@ -37,8 +33,18 @@ export default function ModuloDetalhe({ carregarDados }) {
 
   const [pagina, setPagina] = useState(1);
 
-  const aulasPorPagina = 5;
+  // TOAST
+  const [toastMensagem, setToastMensagem] = useState("");
 
+  const [toastTipo, setToastTipo] = useState("sucesso");
+
+  const [mostrarToast, setMostrarToast] = useState(false);
+
+  const aulasPorPagina = 15;
+
+  // =========================
+  // TOAST
+  // =========================
   function mostrarMensagem(mensagem, tipo = "sucesso") {
     setToastMensagem(mensagem);
 
@@ -50,8 +56,9 @@ export default function ModuloDetalhe({ carregarDados }) {
       setMostrarToast(false);
     }, 3000);
   }
+
   // =========================
-  // CARREGAR DADOS
+  // CARREGAR
   // =========================
   useEffect(() => {
     async function carregar() {
@@ -68,6 +75,7 @@ export default function ModuloDetalhe({ carregarDados }) {
         .order("id");
 
       setModulo(moduloData);
+
       setAulas(aulasData || []);
     }
 
@@ -75,7 +83,7 @@ export default function ModuloDetalhe({ carregarDados }) {
   }, [id]);
 
   // =========================
-  // ADICIONAR AULA
+  // ADICIONAR
   // =========================
   async function adicionarAula() {
     if (!nome) return;
@@ -93,10 +101,9 @@ export default function ModuloDetalhe({ carregarDados }) {
 
     setAulas([...aulas, data[0]]);
 
-    await carregarDados();
-
     setNome("");
     setDescricao("");
+
     mostrarMensagem("Aula adicionada com sucesso!");
   }
 
@@ -152,7 +159,6 @@ export default function ModuloDetalhe({ carregarDados }) {
 
     setAulas(atualizadas);
 
-    await carregarDados();
     mostrarMensagem("Aula atualizada!");
 
     fecharModal();
@@ -166,12 +172,23 @@ export default function ModuloDetalhe({ carregarDados }) {
 
     setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
 
-    await carregarDados();
-    mostrarMensagem("Aula excluída!", "erro");
+    mostrarMensagem("Aula excluída", "erro");
 
+    // FECHAR MODAL AULA
     fecharModal();
-  }
 
+    const modalConfirmacao = bootstrap.Modal.getInstance(
+      document.getElementById("modalConfirmacao"),
+    );
+
+    modalConfirmacao.hide();
+
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+
+    document.body.classList.remove("modal-open");
+
+    document.body.style = "";
+  }
   // =========================
   // PAGINAÇÃO
   // =========================
@@ -224,7 +241,18 @@ export default function ModuloDetalhe({ carregarDados }) {
         salvarEdicao={salvarEdicao}
         deletarAula={deletarAula}
       />
+
+      {/* TOAST */}
       <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
+
+      <ModalConfirmacao
+        titulo="Confirmar Exclusão"
+        mensagem={`
+    Deseja realmente excluir:
+    "${aulaSelecionada?.nome}" ?
+  `}
+        onConfirmar={deletarAula}
+      />
     </div>
   );
 }
