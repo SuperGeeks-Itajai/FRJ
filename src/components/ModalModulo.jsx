@@ -21,18 +21,34 @@ export default function ModalModulo({
 
       <div className="modal-dialog">
 
-        <div className="modal-content bg-black text-white border-secondary">
+        <div className="
+          modal-content
+          bg-black
+          text-white
+          border-secondary
+        ">
 
           {/* HEADER */}
-          <div className="modal-header border-secondary">
+          <div className="
+            modal-header
+            border-secondary
+          ">
 
-            <h5 className="modal-title">
+            <h5 className="
+              modal-title
+              text-danger
+            ">
+
               Editar Módulo
+
             </h5>
 
             <button
               type="button"
-              className="btn-close btn-close-white"
+              className="
+                btn-close
+                btn-close-white
+              "
               data-bs-dismiss="modal"
             ></button>
 
@@ -41,39 +57,36 @@ export default function ModalModulo({
           {/* BODY */}
           <div className="modal-body">
 
-            {/* NOME */}
             <input
-              type="text"
               className="form-control mb-3"
               placeholder="Nome do módulo"
               value={novoNome}
               onChange={(e) =>
-                setNovoNome(e.target.value)
+                setNovoNome(
+                  e.target.value
+                )
               }
             />
 
-            {/* FERRAMENTAS */}
             <textarea
               className="form-control"
               rows="4"
               placeholder="Ferramentas"
               value={novasFerramentas}
               onChange={(e) =>
-                setNovasFerramentas(e.target.value)
+                setNovasFerramentas(
+                  e.target.value
+                )
               }
             />
 
           </div>
 
           {/* FOOTER */}
-          <div className="modal-footer border-secondary">
-
-            <button
-              className="btn btn-outline-light"
-              data-bs-dismiss="modal"
-            >
-              Cancelar
-            </button>
+          <div className="
+            modal-footer
+            border-secondary
+          ">
 
             <button
               className="btn btn-danger"
@@ -83,7 +96,7 @@ export default function ModalModulo({
             </button>
 
             <button
-              className="btn btn-success"
+              className="btn btn-light"
               onClick={salvarEdicao}
             >
               Salvar

@@ -1,393 +1,383 @@
-import { useEffect, useState } from "react"
+import { useState } from "react";
 
-import * as bootstrap from "bootstrap"
+import * as bootstrap from "bootstrap";
 
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
-import { supabase } from "../supabaseClient"
+import { supabase } from "../supabaseClient";
 
-import FormModulo from "../components/FormModulo"
-import ModalModulo from "../components/ModalModulo"
+import FormModulo from "../components/FormModulo";
+import ModalModulo from "../components/ModalModulo";
+import Toast from "../components/Toast";
 
-export default function Modulos() {
-
+export default function Modulos({ modulos, carregarDados }) {
   // =========================
   // STATES
   // =========================
-  const [modulos, setModulos] =
-    useState([])
+  const [nome, setNome] = useState("");
 
-  const [aulas, setAulas] =
-    useState([])
+  const [ferramentas, setFerramentas] = useState("");
 
-  const [nome, setNome] =
-    useState("")
+  const [moduloSelecionado, setModuloSelecionado] = useState(null);
 
-  const [ferramentas, setFerramentas] =
-    useState("")
+  const [novoNome, setNovoNome] = useState("");
 
-  const [moduloSelecionado,
-    setModuloSelecionado] =
-    useState(null)
+  const [novasFerramentas, setNovasFerramentas] = useState("");
 
-  const [novoNome,
-    setNovoNome] =
-    useState("")
+  const [pagina, setPagina] = useState(1);
 
-  const [novasFerramentas,
-    setNovasFerramentas] =
-    useState("")
+  // TOAST
+  const [toastMensagem, setToastMensagem] = useState("");
 
-  const [pagina,
-    setPagina] =
-    useState(1)
+  const [toastTipo, setToastTipo] = useState("sucesso");
 
-  const modulosPorPagina = 10
+  const [mostrarToast, setMostrarToast] = useState(false);
+
+  const modulosPorPagina = 10;
 
   // =========================
-  // CARREGAR DADOS
+  // TOAST
   // =========================
-  useEffect(() => {
+  function mostrarMensagem(mensagem, tipo = "sucesso") {
+    setToastMensagem(mensagem);
 
-    async function carregar() {
+    setToastTipo(tipo);
 
-      const { data: modulosData } =
-        await supabase
-          .from("modulos")
-          .select("*")
-          .order("id")
+    setMostrarToast(true);
 
-      const { data: aulasData } =
-        await supabase
-          .from("aulas")
-          .select("*")
-
-      setModulos(modulosData || [])
-      setAulas(aulasData || [])
-
-    }
-
-    carregar()
-
-  }, [])
-
-  // =========================
-  // CONTAR AULAS
-  // =========================
-  function contarAulas(id) {
-
-    return aulas.filter(
-      a => a.modulo_id === id
-    ).length
-
+    setTimeout(() => {
+      setMostrarToast(false);
+    }, 3000);
   }
 
   // =========================
-  // ADICIONAR MÓDULO
+  // ADICIONAR
   // =========================
   async function adicionarModulo() {
+    if (!nome) return;
 
-    if (!nome) return
+    await supabase.from("modulos").insert([
+      {
+        nome,
+        ferramentas,
+      },
+    ]);
 
-    const { data } = await supabase
-      .from("modulos")
-      .insert([
-        {
-          nome,
-          ferramentas
-        }
-      ])
-      .select()
+    setNome("");
+    setFerramentas("");
 
-    setModulos([
-      ...modulos,
-      data[0]
-    ])
+    carregarDados();
 
-    setNome("")
-    setFerramentas("")
-
+    mostrarMensagem("Módulo criado!");
   }
 
   // =========================
   // ABRIR MODAL
   // =========================
   function abrirModal(modulo) {
+    setModuloSelecionado(modulo);
 
-    setModuloSelecionado(modulo)
+    setNovoNome(modulo.nome);
 
-    setNovoNome(modulo.nome || "")
+    setNovasFerramentas(modulo.ferramentas || "");
 
-    setNovasFerramentas(
-      modulo.ferramentas || ""
-    )
+    const modal = new bootstrap.Modal(document.getElementById("modalModulo"));
 
-    const modal = new bootstrap.Modal(
-      document.getElementById("modalModulo")
-    )
-
-    modal.show()
-
+    modal.show();
   }
 
   // =========================
   // FECHAR MODAL
   // =========================
   function fecharModal() {
+    const modalElement = document.getElementById("modalModulo");
 
-    const modalElement =
-      document.getElementById("modalModulo")
+    const modal = bootstrap.Modal.getInstance(modalElement);
 
-    const modal =
-      bootstrap.Modal.getInstance(modalElement)
-
-    modal.hide()
-
+    modal.hide();
   }
 
   // =========================
-  // SALVAR EDIÇÃO
+  // EDITAR
   // =========================
   async function salvarEdicao() {
-
     await supabase
       .from("modulos")
       .update({
         nome: novoNome,
-        ferramentas: novasFerramentas
+        ferramentas: novasFerramentas,
       })
-      .eq("id", moduloSelecionado.id)
+      .eq("id", moduloSelecionado.id);
 
-    const atualizados =
-      modulos.map(m => {
+    carregarDados();
 
-        if (
-          m.id === moduloSelecionado.id
-        ) {
+    mostrarMensagem("Módulo atualizado!");
 
-          return {
-            ...m,
-            nome: novoNome,
-            ferramentas: novasFerramentas
-          }
-
-        }
-
-        return m
-
-      })
-
-    setModulos(atualizados)
-
-    fecharModal()
-
+    fecharModal();
   }
 
   // =========================
-  // DELETAR
+  // EXCLUIR
   // =========================
   async function deletarModulo() {
+    // VERIFICAR AULAS
+    const { data: aulas } = await supabase
+      .from("aulas")
+      .select("id")
+      .eq("modulo_id", moduloSelecionado.id);
 
-    await supabase
-      .from("modulos")
-      .delete()
-      .eq("id", moduloSelecionado.id)
+    // BLOQUEAR
+    if (aulas.length > 0) {
+      mostrarMensagem(
+        `Não é possível excluir.
+Existe(m)
+${aulas.length} aula(s)
+vinculada(s).`,
+        "erro",
+      );
 
-    setModulos(
-      modulos.filter(
-        m => m.id !== moduloSelecionado.id
-      )
-    )
+      return;
+    }
 
-    fecharModal()
+    // EXCLUIR
+    await supabase.from("modulos").delete().eq("id", moduloSelecionado.id);
 
+    carregarDados();
+
+    mostrarMensagem("Módulo excluído", "erro");
+
+    fecharModal();
   }
 
   // =========================
   // PAGINAÇÃO
   // =========================
-  const inicio =
-    (pagina - 1) * modulosPorPagina
+  const inicio = (pagina - 1) * modulosPorPagina;
 
-  const fim =
-    inicio + modulosPorPagina
+  const fim = inicio + modulosPorPagina;
 
-  const modulosPaginados =
-    modulos.slice(inicio, fim)
+  const modulosPaginados = modulos.slice(inicio, fim);
 
-  const totalPaginas =
-    Math.ceil(
-      modulos.length / modulosPorPagina
-    )
+  const totalPaginas = Math.ceil(modulos.length / modulosPorPagina);
 
+  // =========================
+  // RENDER
+  // =========================
   return (
-
     <div className="container">
-
-      {/* TOPO */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-
+      {/* TÍTULO */}
+      <div
+        className="
+        d-flex
+        justify-content-between
+        align-items-center
+        mb-4
+      "
+      >
         <div>
-
-          <h1 className="text-danger">
+          <h1
+            className="
+            text-danger
+            fw-bold
+            mb-1
+          "
+          >
             Módulos
           </h1>
 
-          <p className="text-secondary mb-0">
-            Gerencie todos os módulos
-          </p>
-
+          <p className="text-secondary">Gerencie os módulos da plataforma</p>
         </div>
-
       </div>
 
       {/* FORM */}
       <FormModulo
-
         nome={nome}
         setNome={setNome}
-
         ferramentas={ferramentas}
         setFerramentas={setFerramentas}
-
         adicionarModulo={adicionarModulo}
-
       />
 
       {/* TABELA */}
-      <div className="card bg-black border-secondary">
-
+      <div
+        className="
+        card
+        bg-black
+        border-secondary
+      "
+      >
         <div className="card-body">
+          <h5
+            className="
+            text-white
+            mb-4
+          "
+          >
+            Lista de Módulos
+          </h5>
 
-          <div className="table-responsive">
-
-            <table className="table table-dark table-hover align-middle">
-
+          <div
+            className="
+            table-responsive
+          "
+          >
+            <table
+              className="
+              table
+              table-dark
+              table-hover
+              align-middle
+            "
+            >
               <thead>
-
                 <tr>
-
                   <th>#</th>
+
                   <th>Módulo</th>
+
                   <th>Ferramentas</th>
-                  <th>Aulas</th>
-                  <th width="220">
+
+                  <th
+                    className="
+                    text-center
+                  "
+                  >
                     Ações
                   </th>
-
                 </tr>
-
               </thead>
 
               <tbody>
-
                 {modulosPaginados.map((m, i) => (
-
                   <tr key={m.id}>
-
                     <td>
-                      {inicio + i + 1}
+                      <span
+                        className="
+                          badge
+                          bg-dark
+                        "
+                      >
+                        {inicio + i + 1}
+                      </span>
                     </td>
 
-                    <td className="text-danger fw-bold">
+                    <td
+                      className="
+                        fw-semibold
+                        text-danger
+                      "
+                    >
                       {m.nome}
                     </td>
 
-                    <td>
-                      {m.ferramentas}
-                    </td>
+                    <td>{m.ferramentas || "—"}</td>
 
-                    <td>
-                      {contarAulas(m.id)}
-                    </td>
-
-                    <td>
-
-                      <div className="d-flex gap-2">
-
+                    <td
+                      className="
+                        text-center
+                      "
+                    >
+                      <div
+                        className="
+                          d-flex
+                          justify-content-center
+                          gap-2
+                        "
+                      >
                         <Link
                           to={`/modulos/${m.id}`}
-                          className="btn btn-danger btn-sm"
+                          className="
+                              btn
+                              btn-sm
+                              btn-outline-light
+                            "
                         >
                           Abrir
                         </Link>
 
                         <button
-                          className="btn btn-outline-light btn-sm"
-                          onClick={() =>
-                            abrirModal(m)
-                          }
+                          className="
+                              btn
+                              btn-sm
+                              btn-danger
+                            "
+                          onClick={() => abrirModal(m)}
                         >
                           Editar
                         </button>
-
                       </div>
-
                     </td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
 
           {/* PAGINAÇÃO */}
-          <div className="d-flex justify-content-between align-items-center mt-4">
-
-            <button
-              className="btn btn-outline-light"
-              disabled={pagina === 1}
-              onClick={() =>
-                setPagina(pagina - 1)
-              }
+          <div
+            className="
+            d-flex
+            justify-content-between
+            align-items-center
+            mt-3
+          "
+          >
+            <p
+              className="
+              text-white
+              mb-0
+            "
             >
-              Anterior
-            </button>
+              Página {pagina}
+              de {totalPaginas}
+            </p>
 
-            <span className="text-white">
-
-              Página {pagina} de {totalPaginas}
-
-            </span>
-
-            <button
-              className="btn btn-outline-light"
-              disabled={
-                pagina === totalPaginas
-              }
-              onClick={() =>
-                setPagina(pagina + 1)
-              }
+            <div
+              className="
+              d-flex
+              gap-2
+            "
             >
-              Próxima
-            </button>
+              <button
+                className="
+                  btn
+                  btn-outline-light
+                  btn-sm
+                "
+                disabled={pagina === 1}
+                onClick={() => setPagina(pagina - 1)}
+              >
+                Anterior
+              </button>
 
+              <button
+                className="
+                  btn
+                  btn-outline-light
+                  btn-sm
+                "
+                disabled={pagina === totalPaginas}
+                onClick={() => setPagina(pagina + 1)}
+              >
+                Próxima
+              </button>
+            </div>
           </div>
-
         </div>
-
       </div>
 
       {/* MODAL */}
       <ModalModulo
-
         novoNome={novoNome}
         setNovoNome={setNovoNome}
-
         novasFerramentas={novasFerramentas}
         setNovasFerramentas={setNovasFerramentas}
-
         salvarEdicao={salvarEdicao}
         deletarModulo={deletarModulo}
-
       />
 
+      {/* TOAST */}
+      <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
     </div>
-
-  )
-
+  );
 }
