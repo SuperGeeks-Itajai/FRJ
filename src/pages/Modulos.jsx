@@ -9,6 +9,7 @@ import { supabase } from "../supabaseClient";
 import FormModulo from "../components/FormModulo";
 import ModalModulo from "../components/ModalModulo";
 import Toast from "../components/Toast";
+import ModalConfirmacao from "../components/ModalConfirmacao";
 
 export default function Modulos({ modulos, carregarDados }) {
   // =========================
@@ -146,7 +147,17 @@ vinculada(s).`,
 
     mostrarMensagem("Módulo excluído", "erro");
 
-    fecharModal();
+    const modalConfirmacao = bootstrap.Modal.getInstance(
+      document.getElementById("modalConfirmacao"),
+    );
+
+    modalConfirmacao.hide();
+
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+
+    document.body.classList.remove("modal-open");
+
+    document.body.style = "";
   }
 
   // =========================
@@ -378,6 +389,16 @@ vinculada(s).`,
 
       {/* TOAST */}
       <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
+
+      {/* CONFIRMAÇÃO */}
+      <ModalConfirmacao
+        titulo="Confirmar Exclusão"
+        mensagem={`
+Deseja realmente excluir:
+"${moduloSelecionado?.nome}" ?
+`}
+        onConfirmar={deletarModulo}
+      />
     </div>
   );
 }

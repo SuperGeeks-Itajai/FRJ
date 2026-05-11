@@ -1,5 +1,4 @@
 export default function ModalModulo({
-
   novoNome,
   setNovoNome,
 
@@ -7,40 +6,32 @@ export default function ModalModulo({
   setNovasFerramentas,
 
   salvarEdicao,
-  deletarModulo
-
 }) {
-
   return (
-
-    <div
-      className="modal fade"
-      id="modalModulo"
-      tabIndex="-1"
-    >
-
+    <div className="modal fade" id="modalModulo" tabIndex="-1">
       <div className="modal-dialog">
-
-        <div className="
+        <div
+          className="
           modal-content
           bg-black
           text-white
           border-secondary
-        ">
-
+        "
+        >
           {/* HEADER */}
-          <div className="
+          <div
+            className="
             modal-header
             border-secondary
-          ">
-
-            <h5 className="
+          "
+          >
+            <h5
+              className="
               modal-title
               text-danger
-            ">
-
+            "
+            >
               Editar Módulo
-
             </h5>
 
             <button
@@ -51,21 +42,15 @@ export default function ModalModulo({
               "
               data-bs-dismiss="modal"
             ></button>
-
           </div>
 
           {/* BODY */}
           <div className="modal-body">
-
             <input
               className="form-control mb-3"
               placeholder="Nome do módulo"
               value={novoNome}
-              onChange={(e) =>
-                setNovoNome(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setNovoNome(e.target.value)}
             />
 
             <textarea
@@ -73,43 +58,31 @@ export default function ModalModulo({
               rows="4"
               placeholder="Ferramentas"
               value={novasFerramentas}
-              onChange={(e) =>
-                setNovasFerramentas(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setNovasFerramentas(e.target.value)}
             />
-
           </div>
 
           {/* FOOTER */}
-          <div className="
+          <div
+            className="
             modal-footer
             border-secondary
-          ">
-
+          "
+          >
             <button
               className="btn btn-danger"
-              onClick={deletarModulo}
+              data-bs-toggle="modal"
+              data-bs-target="#modalConfirmacao"
             >
               Excluir
             </button>
 
-            <button
-              className="btn btn-light"
-              onClick={salvarEdicao}
-            >
+            <button className="btn btn-light" onClick={salvarEdicao}>
               Salvar
             </button>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
-  )
-
+  );
 }
