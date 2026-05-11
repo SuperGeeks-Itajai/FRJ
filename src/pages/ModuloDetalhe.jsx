@@ -1,80 +1,84 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-import * as bootstrap from "bootstrap"
+import * as bootstrap from "bootstrap";
 
-import { supabase } from "../supabaseClient"
+import { supabase } from "../supabaseClient";
 
-import FormAula from "../components/FormAula"
-import TabelaAulas from "../components/TabelaAulas"
-import ModalAula from "../components/ModalAula"
+import FormAula from "../components/FormAula";
+import TabelaAulas from "../components/TabelaAulas";
+import ModalAula from "../components/ModalAula";
 
-export default function ModuloDetalhe({
-  carregarDados
-}) {
+import Toast from "../components/Toast";
 
-  const { id } = useParams()
+export default function ModuloDetalhe({ carregarDados }) {
+  const { id } = useParams();
 
   // =========================
   // STATES
   // =========================
-  const [modulo, setModulo] = useState(null)
+  const [toastMensagem, setToastMensagem] = useState("");
 
-  const [aulas, setAulas] = useState([])
+  const [toastTipo, setToastTipo] = useState("sucesso");
 
-  const [nome, setNome] = useState("")
-  const [descricao, setDescricao] =
-    useState("")
+  const [mostrarToast, setMostrarToast] = useState(false);
+  const [modulo, setModulo] = useState(null);
 
-  const [aulaSelecionada, setAulaSelecionada] =
-    useState(null)
+  const [aulas, setAulas] = useState([]);
 
-  const [novoNome, setNovoNome] =
-    useState("")
+  const [nome, setNome] = useState("");
+  const [descricao, setDescricao] = useState("");
 
-  const [novaDescricao, setNovaDescricao] =
-    useState("")
+  const [aulaSelecionada, setAulaSelecionada] = useState(null);
 
-  const [pagina, setPagina] = useState(1)
+  const [novoNome, setNovoNome] = useState("");
 
-  const aulasPorPagina = 5
+  const [novaDescricao, setNovaDescricao] = useState("");
 
+  const [pagina, setPagina] = useState(1);
+
+  const aulasPorPagina = 5;
+
+  function mostrarMensagem(mensagem, tipo = "sucesso") {
+    setToastMensagem(mensagem);
+
+    setToastTipo(tipo);
+
+    setMostrarToast(true);
+
+    setTimeout(() => {
+      setMostrarToast(false);
+    }, 3000);
+  }
   // =========================
   // CARREGAR DADOS
   // =========================
   useEffect(() => {
-
     async function carregar() {
+      const { data: moduloData } = await supabase
+        .from("modulos")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-      const { data: moduloData } =
-        await supabase
-          .from("modulos")
-          .select("*")
-          .eq("id", id)
-          .single()
+      const { data: aulasData } = await supabase
+        .from("aulas")
+        .select("*")
+        .eq("modulo_id", id)
+        .order("id");
 
-      const { data: aulasData } =
-        await supabase
-          .from("aulas")
-          .select("*")
-          .eq("modulo_id", id)
-          .order("id")
-
-      setModulo(moduloData)
-      setAulas(aulasData || [])
-
+      setModulo(moduloData);
+      setAulas(aulasData || []);
     }
 
-    carregar()
-
-  }, [id])
+    carregar();
+  }, [id]);
 
   // =========================
   // ADICIONAR AULA
   // =========================
   async function adicionarAula() {
-
-    if (!nome) return
+    if (!nome) return;
 
     const { data } = await supabase
       .from("aulas")
@@ -82,153 +86,114 @@ export default function ModuloDetalhe({
         {
           nome,
           descricao,
-          modulo_id: id
-        }
+          modulo_id: id,
+        },
       ])
-      .select()
+      .select();
 
-    setAulas([
-      ...aulas,
-      data[0]
-    ])
+    setAulas([...aulas, data[0]]);
 
-    await carregarDados()
+    await carregarDados();
 
-    setNome("")
-    setDescricao("")
+    setNome("");
+    setDescricao("");
+    mostrarMensagem("Aula adicionada com sucesso!");
   }
 
   // =========================
   // ABRIR MODAL
   // =========================
   function abrirModal(aula) {
+    setAulaSelecionada(aula);
 
-    setAulaSelecionada(aula)
+    setNovoNome(aula.nome || "");
 
-    setNovoNome(aula.nome || "")
+    setNovaDescricao(aula.descricao || "");
 
-    setNovaDescricao(
-      aula.descricao || ""
-    )
+    const modal = new bootstrap.Modal(document.getElementById("modalAula"));
 
-    const modal = new bootstrap.Modal(
-      document.getElementById("modalAula")
-    )
-
-    modal.show()
+    modal.show();
   }
 
   // =========================
   // FECHAR MODAL
   // =========================
   function fecharModal() {
+    const modalElement = document.getElementById("modalAula");
 
-    const modalElement =
-      document.getElementById("modalAula")
+    const modal = bootstrap.Modal.getInstance(modalElement);
 
-    const modal =
-      bootstrap.Modal.getInstance(modalElement)
-
-    modal.hide()
+    modal.hide();
   }
 
   // =========================
   // EDITAR
   // =========================
   async function salvarEdicao() {
-
     await supabase
       .from("aulas")
       .update({
         nome: novoNome,
-        descricao: novaDescricao
+        descricao: novaDescricao,
       })
-      .eq("id", aulaSelecionada.id)
+      .eq("id", aulaSelecionada.id);
 
-    const atualizadas = aulas.map(a => {
-
+    const atualizadas = aulas.map((a) => {
       if (a.id === aulaSelecionada.id) {
-
         return {
           ...a,
           nome: novoNome,
-          descricao: novaDescricao
-        }
-
+          descricao: novaDescricao,
+        };
       }
 
-      return a
+      return a;
+    });
 
-    })
+    setAulas(atualizadas);
 
-    setAulas(atualizadas)
+    await carregarDados();
+    mostrarMensagem("Aula atualizada!");
 
-    await carregarDados()
-
-    fecharModal()
+    fecharModal();
   }
 
   // =========================
   // EXCLUIR
   // =========================
   async function deletarAula() {
+    await supabase.from("aulas").delete().eq("id", aulaSelecionada.id);
 
-    await supabase
-      .from("aulas")
-      .delete()
-      .eq("id", aulaSelecionada.id)
+    setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
 
-    setAulas(
-      aulas.filter(
-        a => a.id !== aulaSelecionada.id
-      )
-    )
+    await carregarDados();
+    mostrarMensagem("Aula excluída!", "erro");
 
-    await carregarDados()
-
-    fecharModal()
+    fecharModal();
   }
 
   // =========================
   // PAGINAÇÃO
   // =========================
-  const inicio =
-    (pagina - 1) * aulasPorPagina
+  const inicio = (pagina - 1) * aulasPorPagina;
 
-  const fim = inicio + aulasPorPagina
+  const fim = inicio + aulasPorPagina;
 
-  const aulasPaginadas =
-    aulas.slice(inicio, fim)
+  const aulasPaginadas = aulas.slice(inicio, fim);
 
-  const totalPaginas =
-    Math.ceil(
-      aulas.length / aulasPorPagina
-    )
+  const totalPaginas = Math.ceil(aulas.length / aulasPorPagina);
 
   if (!modulo) {
-
-    return (
-      <p className="text-white">
-        Carregando...
-      </p>
-    )
-
+    return <p className="text-white">Carregando...</p>;
   }
 
   return (
     <div className="container">
-
       {/* TOPO */}
       <div className="mb-4">
+        <h1 className="text-danger">{modulo.nome}</h1>
 
-        <h1 className="text-danger">
-          {modulo.nome}
-        </h1>
-
-        <p className="text-secondary">
-          {modulo.ferramentas}
-        </p>
-
+        <p className="text-secondary">{modulo.ferramentas}</p>
       </div>
 
       {/* FORM */}
@@ -259,7 +224,7 @@ export default function ModuloDetalhe({
         salvarEdicao={salvarEdicao}
         deletarAula={deletarAula}
       />
-
+      <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
     </div>
-  )
+  );
 }
