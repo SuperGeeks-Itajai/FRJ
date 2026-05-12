@@ -11,7 +11,7 @@ import ModalModulo from "../components/ModalModulo";
 import Toast from "../components/Toast";
 import ModalConfirmacao from "../components/ModalConfirmacao";
 
-export default function Modulos({ modulos, carregarDados }) {
+export default function Modulos({ modulos, busca, carregarDados }) {
   // =========================
   // STATES
   // =========================
@@ -121,13 +121,11 @@ export default function Modulos({ modulos, carregarDados }) {
   // EXCLUIR
   // =========================
   async function deletarModulo() {
-    // VERIFICAR AULAS
     const { data: aulas } = await supabase
       .from("aulas")
       .select("id")
       .eq("modulo_id", moduloSelecionado.id);
 
-    // BLOQUEAR
     if (aulas.length > 0) {
       mostrarMensagem(
         `Não é possível excluir.
@@ -140,7 +138,6 @@ vinculada(s).`,
       return;
     }
 
-    // EXCLUIR
     await supabase.from("modulos").delete().eq("id", moduloSelecionado.id);
 
     carregarDados();
@@ -161,22 +158,30 @@ vinculada(s).`,
   }
 
   // =========================
+  // FILTRO
+  // =========================
+  const modulosFiltrados = modulos.filter((m) => {
+    const texto = `
+        ${m.nome}
+        ${m.ferramentas}
+      `.toLowerCase();
+
+    return texto.includes(busca.toLowerCase());
+  });
+
+  // =========================
   // PAGINAÇÃO
   // =========================
   const inicio = (pagina - 1) * modulosPorPagina;
 
   const fim = inicio + modulosPorPagina;
 
-  const modulosPaginados = modulos.slice(inicio, fim);
+  const modulosPaginados = modulosFiltrados.slice(inicio, fim);
 
-  const totalPaginas = Math.ceil(modulos.length / modulosPorPagina);
+  const totalPaginas = Math.ceil(modulosFiltrados.length / modulosPorPagina);
 
-  // =========================
-  // RENDER
-  // =========================
   return (
     <div className="container">
-      {/* TÍTULO */}
       <div
         className="
         d-flex
@@ -200,7 +205,6 @@ vinculada(s).`,
         </div>
       </div>
 
-      {/* FORM */}
       <FormModulo
         nome={nome}
         setNome={setNome}
@@ -209,7 +213,6 @@ vinculada(s).`,
         adicionarModulo={adicionarModulo}
       />
 
-      {/* TABELA */}
       <div
         className="
         card
@@ -227,11 +230,7 @@ vinculada(s).`,
             Lista de Módulos
           </h5>
 
-          <div
-            className="
-            table-responsive
-          "
-          >
+          <div className="table-responsive">
             <table
               className="
               table
@@ -243,18 +242,9 @@ vinculada(s).`,
               <thead>
                 <tr>
                   <th>#</th>
-
                   <th>Módulo</th>
-
                   <th>Ferramentas</th>
-
-                  <th
-                    className="
-                    text-center
-                  "
-                  >
-                    Ações
-                  </th>
+                  <th className="text-center">Ações</th>
                 </tr>
               </thead>
 
@@ -264,9 +254,9 @@ vinculada(s).`,
                     <td>
                       <span
                         className="
-                          badge
-                          bg-dark
-                        "
+                        badge
+                        bg-dark
+                      "
                       >
                         {inicio + i + 1}
                       </span>
@@ -274,44 +264,40 @@ vinculada(s).`,
 
                     <td
                       className="
-                        fw-semibold
-                        text-danger
-                      "
+                      fw-semibold
+                      text-danger
+                    "
                     >
                       {m.nome}
                     </td>
 
                     <td>{m.ferramentas || "—"}</td>
 
-                    <td
-                      className="
-                        text-center
-                      "
-                    >
+                    <td className="text-center">
                       <div
                         className="
-                          d-flex
-                          justify-content-center
-                          gap-2
-                        "
+                        d-flex
+                        justify-content-center
+                        gap-2
+                      "
                       >
                         <Link
                           to={`/modulos/${m.id}`}
                           className="
-                              btn
-                              btn-sm
-                              btn-outline-light
-                            "
+                            btn
+                            btn-sm
+                            btn-outline-light
+                          "
                         >
                           Abrir
                         </Link>
 
                         <button
                           className="
-                              btn
-                              btn-sm
-                              btn-danger
-                            "
+                            btn
+                            btn-sm
+                            btn-danger
+                          "
                           onClick={() => abrirModal(m)}
                         >
                           Editar
@@ -377,7 +363,6 @@ vinculada(s).`,
         </div>
       </div>
 
-      {/* MODAL */}
       <ModalModulo
         novoNome={novoNome}
         setNovoNome={setNovoNome}
@@ -387,10 +372,8 @@ vinculada(s).`,
         deletarModulo={deletarModulo}
       />
 
-      {/* TOAST */}
       <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
 
-      {/* CONFIRMAÇÃO */}
       <ModalConfirmacao
         titulo="Confirmar Exclusão"
         mensagem={`

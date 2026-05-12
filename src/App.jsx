@@ -1,28 +1,21 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
-import { Routes, Route } from "react-router-dom"
+import { supabase } from "./supabaseClient";
 
-import { supabase } from "./supabaseClient"
+import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar"
+import Navbar from "./components/Navbar";
 
-import Dashboard from "./pages/Dashboard"
-import Modulos from "./pages/Modulos"
-import ModuloDetalhe from "./pages/ModuloDetalhe"
+import Dashboard from "./pages/Dashboard";
+import Modulos from "./pages/Modulos";
+import ModuloDetalhe from "./pages/ModuloDetalhe";
 
 export default function App() {
 
-  // =========================
-  // STATES
-  // =========================
-  const [modulos, setModulos] =
-    useState([])
+  const [modulos, setModulos] = useState([]);
+  const [aulas, setAulas] = useState([]);
 
-  const [aulas, setAulas] =
-    useState([])
-
-  const [busca, setBusca] =
-    useState("")
+  const [busca, setBusca] = useState("");
 
   // =========================
   // CARREGAR DADOS
@@ -33,16 +26,16 @@ export default function App() {
       await supabase
         .from("modulos")
         .select("*")
-        .order("id")
+        .order("id");
 
     const { data: aulasData } =
       await supabase
         .from("aulas")
         .select("*")
-        .order("id")
+        .order("id");
 
-    setModulos(modulosData || [])
-    setAulas(aulasData || [])
+    setModulos(modulosData || []);
+    setAulas(aulasData || []);
 
   }
 
@@ -52,80 +45,22 @@ export default function App() {
   useEffect(() => {
 
     async function init() {
-
-      await carregarDados()
-
+      await carregarDados();
     }
 
-    init()
+    init();
 
-  }, [])
-
-  // =========================
-  // FILTRAR AULAS
-  // =========================
-  const aulasFiltradas =
-    aulas.filter(aula => {
-
-      const texto =
-        `
-        ${aula.nome || ""}
-        ${aula.descricao || ""}
-        `
-          .toLowerCase()
-
-      return texto.includes(
-        busca.toLowerCase()
-      )
-
-    })
-
-  // =========================
-  // FILTRAR MÓDULOS
-  // =========================
-  const modulosFiltrados =
-    modulos.filter(modulo => {
-
-      // módulo aparece
-      // se alguma aula dele
-      // bater na busca
-
-      const possuiAula =
-        aulasFiltradas.some(
-          aula =>
-            aula.modulo_id === modulo.id
-        )
-
-      // OU o próprio módulo
-      // bate na busca
-
-      const textoModulo =
-        `
-        ${modulo.nome || ""}
-        ${modulo.ferramentas || ""}
-        `
-          .toLowerCase()
-
-      return (
-        possuiAula ||
-        textoModulo.includes(
-          busca.toLowerCase()
-        )
-      )
-
-    })
+  }, []);
 
   return (
 
     <div className="bg-dark text-white min-vh-100">
 
-      {/* NAVBAR */}
       <Navbar
         busca={busca}
         setBusca={setBusca}
       />
 
-      {/* CONTEÚDO */}
       <div
         className="container-fluid p-4"
         style={{
@@ -140,28 +75,31 @@ export default function App() {
             path="/"
             element={
               <Dashboard
-                modulos={modulosFiltrados}
-                aulas={aulasFiltradas}
+                modulos={modulos}
+                aulas={aulas}
+                busca={busca}
               />
             }
           />
 
-          {/* MÓDULOS */}
+          {/* MODULOS */}
           <Route
             path="/modulos"
             element={
               <Modulos
                 modulos={modulos}
+                busca={busca}
                 carregarDados={carregarDados}
               />
             }
           />
 
-          {/* DETALHE MÓDULO */}
+          {/* DETALHE */}
           <Route
             path="/modulos/:id"
             element={
               <ModuloDetalhe
+                busca={busca}
                 carregarDados={carregarDados}
               />
             }
@@ -173,6 +111,6 @@ export default function App() {
 
     </div>
 
-  )
+  );
 
 }

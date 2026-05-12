@@ -1,35 +1,72 @@
-import { Link } from "react-router-dom"
-
 export default function TabelaModulos({
+
   modulos,
   aulas,
+
   pagina,
-  setPagina,
-  totalPaginas,
-  inicio
+  setPagina
+
 }) {
 
+  const modulosPorPagina = 10;
+
+  // =========================
+  // CONTAR AULAS
+  // =========================
   function contarAulas(id) {
 
     return aulas.filter(
       a => a.modulo_id === id
-    ).length
+    ).length;
 
   }
 
+  // =========================
+  // PAGINAÇÃO
+  // =========================
+  const inicio =
+    (pagina - 1)
+    * modulosPorPagina;
+
+  const fim =
+    inicio + modulosPorPagina;
+
+  const modulosPaginados =
+    modulos.slice(inicio, fim);
+
+  const totalPaginas =
+    Math.ceil(
+      modulos.length /
+      modulosPorPagina
+    );
+
   return (
 
-    <div className="card bg-black text-white border-secondary">
+    <div
+      className="
+        card
+        bg-black
+        text-white
+        border-secondary
+      "
+    >
 
       <div className="card-body">
 
-        <h5 className="mb-3 text-white">
+        <h5 className="mb-3">
           Módulos
         </h5>
 
         <div className="table-responsive">
 
-          <table className="table table-dark table-hover align-middle">
+          <table
+            className="
+              table
+              table-dark
+              table-hover
+              align-middle
+            "
+          >
 
             <thead>
 
@@ -43,45 +80,44 @@ export default function TabelaModulos({
 
                 <th>Aulas</th>
 
-                <th width="120">
-                  Ações
-                </th>
-
               </tr>
 
             </thead>
 
             <tbody>
 
-              {modulos.map((m, i) => (
+              {modulosPaginados.map((m, i) => (
 
                 <tr key={m.id}>
 
                   <td>
-                    {inicio + i + 1}
+
+                    <span
+                      className="
+                        badge
+                        bg-dark
+                      "
+                    >
+                      {inicio + i + 1}
+                    </span>
+
                   </td>
 
-                  <td className="text-danger fw-bold">
+                  <td
+                    className="
+                      text-danger
+                      fw-semibold
+                    "
+                  >
                     {m.nome}
                   </td>
 
                   <td>
-                    {m.ferramentas}
+                    {m.ferramentas || "—"}
                   </td>
 
                   <td>
                     {contarAulas(m.id)}
-                  </td>
-
-                  <td>
-
-                    <Link
-                      to={`/modulos/${m.id}`}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Abrir
-                    </Link>
-
                   </td>
 
                 </tr>
@@ -95,35 +131,63 @@ export default function TabelaModulos({
         </div>
 
         {/* PAGINAÇÃO */}
-        <div className="d-flex justify-content-between align-items-center mt-4">
+        <div
+          className="
+            d-flex
+            justify-content-between
+            align-items-center
+            mt-3
+          "
+        >
 
-          <button
-            className="btn btn-outline-light"
-            disabled={pagina === 1}
-            onClick={() =>
-              setPagina(pagina - 1)
-            }
+          <p
+            className="
+              text-white
+              mb-0
+            "
           >
-            Anterior
-          </button>
+            Página {pagina}
+            de {totalPaginas}
+          </p>
 
-          <span className="text-white">
-
-            Página {pagina} de {totalPaginas}
-
-          </span>
-
-          <button
-            className="btn btn-outline-light"
-            disabled={
-              pagina === totalPaginas
-            }
-            onClick={() =>
-              setPagina(pagina + 1)
-            }
+          <div
+            className="
+              d-flex
+              gap-2
+            "
           >
-            Próxima
-          </button>
+
+            <button
+              className="
+                btn
+                btn-outline-light
+                btn-sm
+              "
+              disabled={pagina === 1}
+              onClick={() =>
+                setPagina(pagina - 1)
+              }
+            >
+              Anterior
+            </button>
+
+            <button
+              className="
+                btn
+                btn-outline-light
+                btn-sm
+              "
+              disabled={
+                pagina === totalPaginas
+              }
+              onClick={() =>
+                setPagina(pagina + 1)
+              }
+            >
+              Próxima
+            </button>
+
+          </div>
 
         </div>
 
@@ -131,5 +195,6 @@ export default function TabelaModulos({
 
     </div>
 
-  )
+  );
+
 }

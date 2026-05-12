@@ -1,39 +1,46 @@
-import { useState } from "react"
+import { useState } from "react";
 
-import CardsResumo from "../components/CardsResumo"
-import TabelaModulos from "../components/TabelaModulos"
+import CardsResumo from "../components/CardsResumo";
+import TabelaModulos from "../components/TabelaModulos";
 
 export default function Dashboard({
+
   modulos,
-  aulas
+  aulas,
+  busca
+
 }) {
 
-  // =========================
-  // PAGINAÇÃO
-  // =========================
   const [pagina, setPagina] =
-    useState(1)
+    useState(1);
 
-  const modulosPorPagina = 7
+  // =========================
+  // FILTRO
+  // =========================
+  const modulosFiltrados =
+    modulos.filter((m) => {
 
-  const inicio =
-    (pagina - 1) * modulosPorPagina
+      const texto = `
+        ${m.nome}
+        ${m.ferramentas}
+      `.toLowerCase();
 
-  const fim =
-    inicio + modulosPorPagina
+      return texto.includes(
+        busca.toLowerCase()
+      );
 
-  const modulosPaginados =
-    modulos.slice(inicio, fim)
-
-  const totalPaginas =
-    Math.ceil(
-      modulos.length / modulosPorPagina
-    )
+    });
 
   return (
+
     <>
 
-      <h1 className="mb-4 text-white">
+      <h1
+        className="
+          mb-4
+          text-white
+        "
+      >
         Dashboard
       </h1>
 
@@ -43,14 +50,15 @@ export default function Dashboard({
       />
 
       <TabelaModulos
-        modulos={modulosPaginados}
+        modulos={modulosFiltrados}
         aulas={aulas}
+
         pagina={pagina}
         setPagina={setPagina}
-        totalPaginas={totalPaginas}
-        inicio={inicio}
       />
 
     </>
-  )
+
+  );
+
 }
