@@ -4,6 +4,7 @@ export default function ModalAula({
   novaDescricao,
   setNovaDescricao,
   salvarEdicao,
+  abrirConfirmacao,
 }) {
   return (
     <div className="modal fade" id="modalAula" tabIndex="-1">
@@ -16,7 +17,7 @@ export default function ModalAula({
               type="button"
               className="btn-close btn-close-white"
               data-bs-dismiss="modal"
-            ></button>
+            />
           </div>
 
           <div className="modal-body">
@@ -39,11 +40,7 @@ export default function ModalAula({
               Cancelar
             </button>
 
-            <button
-              className="btn btn-danger"
-              data-bs-toggle="modal"
-              data-bs-target="#modalConfirmacao"
-            >
+            <button className="btn btn-danger" onClick={abrirConfirmacao}>
               Excluir
             </button>
 
