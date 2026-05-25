@@ -9,9 +9,9 @@ import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Modulos from "./pages/Modulos";
 import ModuloDetalhe from "./pages/ModuloDetalhe";
+import Aulas from "./pages/Aulas";
 
 export default function App() {
-
   const [modulos, setModulos] = useState([]);
   const [aulas, setAulas] = useState([]);
 
@@ -21,45 +21,34 @@ export default function App() {
   // CARREGAR DADOS
   // =========================
   async function carregarDados() {
+    const { data: modulosData } = await supabase
+      .from("modulos")
+      .select("*")
+      .order("id");
 
-    const { data: modulosData } =
-      await supabase
-        .from("modulos")
-        .select("*")
-        .order("id");
-
-    const { data: aulasData } =
-      await supabase
-        .from("aulas")
-        .select("*")
-        .order("id");
+    const { data: aulasData } = await supabase
+      .from("aulas")
+      .select("*")
+      .order("id");
 
     setModulos(modulosData || []);
     setAulas(aulasData || []);
-
   }
 
   // =========================
   // INIT
   // =========================
   useEffect(() => {
-
     async function init() {
       await carregarDados();
     }
 
     init();
-
   }, []);
 
   return (
-
     <div className="bg-dark text-white min-vh-100">
-
-      <Navbar
-        busca={busca}
-        setBusca={setBusca}
-      />
+      <Navbar busca={busca} setBusca={setBusca} />
 
       <div
         className="container-fluid p-4"
@@ -67,27 +56,21 @@ export default function App() {
           marginTop: "50px",
         }}
       >
-
         <Routes>
-
           {/* DASHBOARD */}
           <Route
             path="/"
             element={
-              <Dashboard
-                modulos={modulos}
-                aulas={aulas}
-                busca={busca}
-              />
+              <Dashboard modulos={modulos} aulas={aulas} busca={busca} />
             }
           />
 
-          {/* MODULOS */}
           <Route
             path="/modulos"
             element={
               <Modulos
                 modulos={modulos}
+                aulas={aulas}
                 busca={busca}
                 carregarDados={carregarDados}
               />
@@ -98,19 +81,16 @@ export default function App() {
           <Route
             path="/modulos/:id"
             element={
-              <ModuloDetalhe
-                busca={busca}
-                carregarDados={carregarDados}
-              />
+              <ModuloDetalhe busca={busca} carregarDados={carregarDados} />
             }
           />
 
+          <Route
+            path="/aulas"
+            element={<Aulas aulas={aulas} modulos={modulos} busca={busca} />}
+          />
         </Routes>
-
       </div>
-
     </div>
-
   );
-
 }

@@ -11,7 +11,7 @@ import ModalModulo from "../components/ModalModulo";
 import Toast from "../components/Toast";
 import ModalConfirmacao from "../components/ModalConfirmacao";
 
-export default function Modulos({ modulos, busca, carregarDados }) {
+export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // =========================
   // STATES
   // =========================
@@ -160,13 +160,38 @@ vinculada(s).`,
   // =========================
   // FILTRO
   // =========================
-  const modulosFiltrados = modulos.filter((m) => {
-    const texto = `
-        ${m.nome}
-        ${m.ferramentas}
-      `.toLowerCase();
+const modulosFiltrados =
+  modulos.filter((m) => {
 
-    return texto.includes(busca.toLowerCase());
+    const textoModulo = `
+      ${m.nome}
+      ${m.ferramentas}
+    `.toLowerCase();
+
+    const encontrouModulo =
+      textoModulo.includes(
+        busca.toLowerCase()
+      );
+
+    const encontrouAula =
+      aulas.some(
+        (aula) =>
+          aula.modulo_id === m.id &&
+          `
+            ${aula.nome}
+            ${aula.descricao}
+          `
+            .toLowerCase()
+            .includes(
+              busca.toLowerCase()
+            )
+      );
+
+    return (
+      encontrouModulo ||
+      encontrouAula
+    );
+
   });
 
   // =========================
