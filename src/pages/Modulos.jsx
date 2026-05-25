@@ -350,8 +350,7 @@ const modulosFiltrados =
               mb-0
             "
             >
-              Página {pagina}
-              de {totalPaginas}
+               {`Página ${pagina} de ${totalPaginas}`}
             </p>
 
             <div

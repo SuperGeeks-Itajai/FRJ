@@ -1,47 +1,31 @@
 export default function TabelaModulos({
-
   modulos,
   aulas,
 
   pagina,
-  setPagina
-
+  setPagina,
 }) {
-
   const modulosPorPagina = 10;
 
   // =========================
   // CONTAR AULAS
   // =========================
   function contarAulas(id) {
-
-    return aulas.filter(
-      a => a.modulo_id === id
-    ).length;
-
+    return aulas.filter((a) => a.modulo_id === id).length;
   }
 
   // =========================
   // PAGINAÇÃO
   // =========================
-  const inicio =
-    (pagina - 1)
-    * modulosPorPagina;
+  const inicio = (pagina - 1) * modulosPorPagina;
 
-  const fim =
-    inicio + modulosPorPagina;
+  const fim = inicio + modulosPorPagina;
 
-  const modulosPaginados =
-    modulos.slice(inicio, fim);
+  const modulosPaginados = modulos.slice(inicio, fim);
 
-  const totalPaginas =
-    Math.ceil(
-      modulos.length /
-      modulosPorPagina
-    );
+  const totalPaginas = Math.ceil(modulos.length / modulosPorPagina);
 
   return (
-
     <div
       className="
         card
@@ -50,15 +34,10 @@ export default function TabelaModulos({
         border-secondary
       "
     >
-
       <div className="card-body">
-
-        <h5 className="mb-3">
-          Módulos
-        </h5>
+        <h5 className="mb-3">Módulos</h5>
 
         <div className="table-responsive">
-
           <table
             className="
               table
@@ -67,11 +46,8 @@ export default function TabelaModulos({
               align-middle
             "
           >
-
             <thead>
-
               <tr>
-
                 <th>#</th>
 
                 <th>Módulo</th>
@@ -79,19 +55,13 @@ export default function TabelaModulos({
                 <th>Ferramentas</th>
 
                 <th>Aulas</th>
-
               </tr>
-
             </thead>
 
             <tbody>
-
               {modulosPaginados.map((m, i) => (
-
                 <tr key={m.id}>
-
                   <td>
-
                     <span
                       className="
                         badge
@@ -100,7 +70,6 @@ export default function TabelaModulos({
                     >
                       {inicio + i + 1}
                     </span>
-
                   </td>
 
                   <td
@@ -112,22 +81,13 @@ export default function TabelaModulos({
                     {m.nome}
                   </td>
 
-                  <td>
-                    {m.ferramentas || "—"}
-                  </td>
+                  <td>{m.ferramentas || "—"}</td>
 
-                  <td>
-                    {contarAulas(m.id)}
-                  </td>
-
+                  <td>{contarAulas(m.id)}</td>
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
 
         {/* PAGINAÇÃO */}
@@ -139,15 +99,13 @@ export default function TabelaModulos({
             mt-3
           "
         >
-
           <p
             className="
               text-white
               mb-0
             "
           >
-            Página {pagina}
-            de {totalPaginas}
+            {`Página ${pagina} de ${totalPaginas}`}
           </p>
 
           <div
@@ -156,7 +114,6 @@ export default function TabelaModulos({
               gap-2
             "
           >
-
             <button
               className="
                 btn
@@ -164,9 +121,7 @@ export default function TabelaModulos({
                 btn-sm
               "
               disabled={pagina === 1}
-              onClick={() =>
-                setPagina(pagina - 1)
-              }
+              onClick={() => setPagina(pagina - 1)}
             >
               Anterior
             </button>
@@ -177,24 +132,14 @@ export default function TabelaModulos({
                 btn-outline-light
                 btn-sm
               "
-              disabled={
-                pagina === totalPaginas
-              }
-              onClick={() =>
-                setPagina(pagina + 1)
-              }
+              disabled={pagina === totalPaginas}
+              onClick={() => setPagina(pagina + 1)}
             >
               Próxima
             </button>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 }
