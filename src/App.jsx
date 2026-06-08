@@ -87,7 +87,14 @@ export default function App() {
 
           <Route
             path="/aulas"
-            element={<Aulas aulas={aulas} modulos={modulos} busca={busca} />}
+            element={
+              <Aulas
+                aulas={aulas}
+                setAulas={setAulas}
+                modulos={modulos}
+                busca={busca}
+              />
+            }
           />
         </Routes>
       </div>
