@@ -6,10 +6,50 @@ import { Link } from "react-router-dom";
 
 import { supabase } from "../supabaseClient";
 
-import FormModulo from "../components/FormModulo";
 import ModalModulo from "../components/ModalModulo";
 import Toast from "../components/Toast";
 import ModalConfirmacao from "../components/ModalConfirmacao";
+
+export function FormModulo({
+  nome,
+  setNome,
+
+  ferramentas,
+  setFerramentas,
+
+  adicionarModulo,
+}) {
+  return (
+    <div className="card bg-black border-secondary mb-4">
+      <div className="card-body">
+        <h5 className="text-white mb-3">Novo Módulo</h5>
+
+        {/* NOME */}
+        <input
+          type="text"
+          className="form-control mb-3"
+          placeholder="Nome do módulo"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+        />
+
+        {/* FERRAMENTAS */}
+        <textarea
+          className="form-control mb-3"
+          rows="3"
+          placeholder="Ferramentas utilizadas"
+          value={ferramentas}
+          onChange={(e) => setFerramentas(e.target.value)}
+        />
+
+        {/* BOTÃO */}
+        <button className="btn btn-danger" onClick={adicionarModulo}>
+          Adicionar Módulo
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // =========================
@@ -160,38 +200,26 @@ vinculada(s).`,
   // =========================
   // FILTRO
   // =========================
-const modulosFiltrados =
-  modulos.filter((m) => {
-
+  const modulosFiltrados = modulos.filter((m) => {
     const textoModulo = `
       ${m.nome}
       ${m.ferramentas}
     `.toLowerCase();
 
-    const encontrouModulo =
-      textoModulo.includes(
-        busca.toLowerCase()
-      );
+    const encontrouModulo = textoModulo.includes(busca.toLowerCase());
 
-    const encontrouAula =
-      aulas.some(
-        (aula) =>
-          aula.modulo_id === m.id &&
-          `
+    const encontrouAula = aulas.some(
+      (aula) =>
+        aula.modulo_id === m.id &&
+        `
             ${aula.nome}
             ${aula.descricao}
           `
-            .toLowerCase()
-            .includes(
-              busca.toLowerCase()
-            )
-      );
-
-    return (
-      encontrouModulo ||
-      encontrouAula
+          .toLowerCase()
+          .includes(busca.toLowerCase()),
     );
 
+    return encontrouModulo || encontrouAula;
   });
 
   // =========================
@@ -350,7 +378,7 @@ const modulosFiltrados =
               mb-0
             "
             >
-               {`Página ${pagina} de ${totalPaginas}`}
+              {`Página ${pagina} de ${totalPaginas}`}
             </p>
 
             <div
