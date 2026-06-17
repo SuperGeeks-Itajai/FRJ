@@ -4,7 +4,13 @@ import { useParams } from "react-router-dom";
 
 import * as bootstrap from "bootstrap";
 
-import { supabase } from "../supabaseClient";
+import {
+  buscarModulo,
+  buscarAulas,
+  criarAula,
+  editarAula,
+  excluirAula,
+} from "../services/AulasService";
 
 import TabelaAulas from "../components/TabelaAulas";
 import ModalAula from "../components/ModalAula";
@@ -58,17 +64,8 @@ export default function ModuloDetalhe({ busca }) {
   // =========================
   useEffect(() => {
     async function carregar() {
-      const { data: moduloData } = await supabase
-        .from("modulos")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      const { data: aulasData } = await supabase
-        .from("aulas")
-        .select("*")
-        .eq("modulo_id", id)
-        .order("id");
+      const moduloData = await buscarModulo(id);
+      const aulasData = await buscarAulas(id);
 
       setModulo(moduloData);
 
@@ -98,18 +95,13 @@ export default function ModuloDetalhe({ busca }) {
   async function salvarNovaAula() {
     if (!novoNome.trim()) return;
 
-    const { data } = await supabase
-      .from("aulas")
-      .insert([
-        {
-          nome: novoNome,
-          descricao: novaDescricao,
-          modulo_id: id,
-        },
-      ])
-      .select();
+    const aula = await criarAula({
+      nome: novoNome,
+      descricao: novaDescricao,
+      modulo_id: id,
+    });
 
-    setAulas([...aulas, data[0]]);
+    setAulas([...aulas, aula]);
 
     mostrarMensagem("Aula criada com sucesso!");
 
@@ -157,13 +149,10 @@ export default function ModuloDetalhe({ busca }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    await supabase
-      .from("aulas")
-      .update({
-        nome: novoNome,
-        descricao: novaDescricao,
-      })
-      .eq("id", aulaSelecionada.id);
+    await editarAula(aulaSelecionada.id, {
+      nome: novoNome,
+      descricao: novaDescricao,
+    });
 
     const atualizadas = aulas.map((a) => {
       if (a.id === aulaSelecionada.id) {
@@ -188,7 +177,7 @@ export default function ModuloDetalhe({ busca }) {
   // EXCLUIR
   // =========================
   async function deletarAula() {
-    await supabase.from("aulas").delete().eq("id", aulaSelecionada.id);
+    await excluirAula(aulaSelecionada.id);
 
     setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
 
