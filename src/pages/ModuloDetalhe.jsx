@@ -130,7 +130,18 @@ export default function ModuloDetalhe({ busca }) {
 
     modal.show();
   }
+  // =========================
+  // abrir abrirConfirmacao
+  // =========================
+  function abrirConfirmacao(aula) {
+    setAulaSelecionada(aula);
 
+    const modal = new bootstrap.Modal(
+      document.getElementById("modalConfirmacao"),
+    );
+
+    modal.show();
+  }
   // =========================
   // FECHAR MODAL
   // =========================
@@ -251,9 +262,9 @@ export default function ModuloDetalhe({ busca }) {
         totalPaginas={totalPaginas}
         setPagina={setPagina}
         abrirModal={abrirModal}
+        abrirConfirmacao={abrirConfirmacao}
         inicio={inicio}
       />
-
       {/* MODAL */}
       <ModalAula
         titulo={aulaSelecionada ? "Editar Aula" : "Nova Aula"}

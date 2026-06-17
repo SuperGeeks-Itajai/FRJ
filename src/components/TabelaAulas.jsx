@@ -4,6 +4,7 @@ export default function TabelaAulas({
   totalPaginas,
   setPagina,
   abrirModal,
+  abrirConfirmacao,
   inicio,
 }) {
   return (
@@ -32,12 +33,21 @@ export default function TabelaAulas({
                   <td>{aula.descricao || "Sem descrição"}</td>
 
                   <td>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => abrirModal(aula)}
-                    >
-                      Editar
-                    </button>
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-warning"
+                        onClick={() => abrirModal(aula)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => abrirConfirmacao(aula)}
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
