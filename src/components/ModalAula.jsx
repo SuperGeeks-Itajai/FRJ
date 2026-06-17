@@ -1,22 +1,17 @@
 export default function ModalAula({
+  titulo,
   novoNome,
   setNovoNome,
   novaDescricao,
   setNovaDescricao,
-  salvarEdicao,
+  acao,
 }) {
   return (
-    <div
-      className="modal fade"
-      id="modalAula"
-      tabIndex="-1"
-    >
+    <div className="modal fade" id="modalAula" tabIndex="-1">
       <div className="modal-dialog">
         <div className="modal-content bg-black text-white">
           <div className="modal-header">
-            <h5 className="modal-title">
-              Editar Aula
-            </h5>
+            <h5 className="modal-title">{titulo}</h5>
 
             <button
               type="button"
@@ -29,37 +24,23 @@ export default function ModalAula({
             <input
               className="form-control mb-3"
               value={novoNome}
-              onChange={(e) =>
-                setNovoNome(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setNovoNome(e.target.value)}
             />
 
             <textarea
               className="form-control"
               rows="4"
               value={novaDescricao}
-              onChange={(e) =>
-                setNovaDescricao(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setNovaDescricao(e.target.value)}
             />
           </div>
 
           <div className="modal-footer">
-            <button
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
+            <button className="btn btn-secondary" data-bs-dismiss="modal">
               Cancelar
             </button>
 
-            <button
-              className="btn btn-success"
-              onClick={salvarEdicao}
-            >
+            <button className="btn btn-success" onClick={acao}>
               Salvar
             </button>
           </div>
