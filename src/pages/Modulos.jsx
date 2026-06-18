@@ -4,7 +4,12 @@ import * as bootstrap from "bootstrap";
 
 import { Link } from "react-router-dom";
 
-import { supabase } from "../supabaseClient";
+import {
+  criarModulo,
+  editarModulo,
+  excluirModulo,
+  contarAulas,
+} from "../services/modulosService";
 
 import ModalModulo from "../components/ModalModulo";
 import Toast from "../components/Toast";
@@ -97,12 +102,10 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   async function adicionarModulo() {
     if (!nome) return;
 
-    await supabase.from("modulos").insert([
-      {
-        nome,
-        ferramentas,
-      },
-    ]);
+    await criarModulo({
+      nome,
+      ferramentas,
+    });
 
     setNome("");
     setFerramentas("");
@@ -142,13 +145,10 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    await supabase
-      .from("modulos")
-      .update({
-        nome: novoNome,
-        ferramentas: novasFerramentas,
-      })
-      .eq("id", moduloSelecionado.id);
+    await editarModulo(moduloSelecionado.id, {
+      nome: novoNome,
+      ferramentas: novasFerramentas,
+    });
 
     carregarDados();
 
@@ -161,16 +161,13 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EXCLUIR
   // =========================
   async function deletarModulo() {
-    const { data: aulas } = await supabase
-      .from("aulas")
-      .select("id")
-      .eq("modulo_id", moduloSelecionado.id);
+    const total = await contarAulas(moduloSelecionado.id);
 
-    if (aulas.length > 0) {
+    if (total > 0) {
       mostrarMensagem(
         `Não é possível excluir.
 Existe(m)
-${aulas.length} aula(s)
+${total} aula(s)
 vinculada(s).`,
         "erro",
       );
@@ -178,7 +175,7 @@ vinculada(s).`,
       return;
     }
 
-    await supabase.from("modulos").delete().eq("id", moduloSelecionado.id);
+    await excluirModulo(moduloSelecionado.id);
 
     carregarDados();
 
