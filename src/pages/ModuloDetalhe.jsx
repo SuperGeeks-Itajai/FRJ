@@ -64,12 +64,16 @@ export default function ModuloDetalhe({ busca }) {
   // =========================
   useEffect(() => {
     async function carregar() {
-      const moduloData = await buscarModulo(id);
-      const aulasData = await buscarAulas(id);
+      try {
+        const moduloData = await buscarModulo(id);
+        const aulasData = await buscarAulas(id);
 
-      setModulo(moduloData);
-
-      setAulas(aulasData || []);
+        setModulo(moduloData);
+        setAulas(aulasData || []);
+      } catch (error) {
+        console.error(error);
+        mostrarMensagem(error.message || "Erro ao carregar módulo.", "erro");
+      }
     }
 
     carregar();
@@ -95,17 +99,22 @@ export default function ModuloDetalhe({ busca }) {
   async function salvarNovaAula() {
     if (!novoNome.trim()) return;
 
-    const aula = await criarAula({
-      nome: novoNome,
-      descricao: novaDescricao,
-      modulo_id: id,
-    });
+    try {
+      const aula = await criarAula({
+        nome: novoNome,
+        descricao: novaDescricao,
+        modulo_id: id,
+      });
 
-    setAulas([...aulas, aula]);
+      setAulas([...aulas, aula]);
 
-    mostrarMensagem("Aula criada com sucesso!");
+      mostrarMensagem("Aula criada com sucesso!");
 
-    fecharModal();
+      fecharModal();
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(error.message || "Erro ao criar aula.", "erro");
+    }
   }
 
   // =========================
@@ -149,53 +158,64 @@ export default function ModuloDetalhe({ busca }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    await editarAula(aulaSelecionada.id, {
-      nome: novoNome,
-      descricao: novaDescricao,
-    });
+    try {
+      await editarAula(aulaSelecionada.id, {
+        nome: novoNome,
+        descricao: novaDescricao,
+      });
 
-    const atualizadas = aulas.map((a) => {
-      if (a.id === aulaSelecionada.id) {
-        return {
-          ...a,
-          nome: novoNome,
-          descricao: novaDescricao,
-        };
-      }
+      const atualizadas = aulas.map((a) => {
+        if (a.id === aulaSelecionada.id) {
+          return {
+            ...a,
+            nome: novoNome,
+            descricao: novaDescricao,
+          };
+        }
 
-      return a;
-    });
+        return a;
+      });
 
-    setAulas(atualizadas);
+      setAulas(atualizadas);
 
-    mostrarMensagem("Aula atualizada!");
+      mostrarMensagem("Aula atualizada!");
 
-    fecharModal();
+      fecharModal();
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(error.message || "Erro ao atualizar aula.", "erro");
+    }
   }
 
   // =========================
   // EXCLUIR
   // =========================
   async function deletarAula() {
-    await excluirAula(aulaSelecionada.id);
+    try {
+      await excluirAula(aulaSelecionada.id);
 
-    setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
+      setAulas(aulas.filter((a) => a.id !== aulaSelecionada.id));
 
-    mostrarMensagem("Aula excluída", "erro");
+      mostrarMensagem("Aula excluída!");
 
-    fecharModal();
+      fecharModal();
 
-    const modalConfirmacao = bootstrap.Modal.getInstance(
-      document.getElementById("modalConfirmacao"),
-    );
+      const modalConfirmacao = bootstrap.Modal.getInstance(
+        document.getElementById("modalConfirmacao"),
+      );
 
-    modalConfirmacao.hide();
+      modalConfirmacao.hide();
 
-    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+      document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
 
-    document.body.classList.remove("modal-open");
+      document.body.classList.remove("modal-open");
 
-    document.body.style = "";
+      document.body.style = "";
+    } catch (error) {
+      console.error(error);
+
+      mostrarMensagem(error.message || "Erro ao excluir aula.", "erro");
+    }
   }
 
   // =========================

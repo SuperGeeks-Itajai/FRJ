@@ -100,19 +100,24 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // ADICIONAR
   // =========================
   async function adicionarModulo() {
-    if (!nome) return;
+    if (!nome.trim()) return;
 
-    await criarModulo({
-      nome,
-      ferramentas,
-    });
+    try {
+      await criarModulo({
+        nome,
+        ferramentas,
+      });
 
-    setNome("");
-    setFerramentas("");
+      setNome("");
+      setFerramentas("");
 
-    carregarDados();
+      carregarDados();
 
-    mostrarMensagem("Módulo criado!");
+      mostrarMensagem("Módulo criado!");
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(error.message || "Erro ao criar módulo.", "erro");
+    }
   }
 
   // =========================
@@ -145,53 +150,63 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    await editarModulo(moduloSelecionado.id, {
-      nome: novoNome,
-      ferramentas: novasFerramentas,
-    });
+    try {
+      await editarModulo(moduloSelecionado.id, {
+        nome: novoNome,
+        ferramentas: novasFerramentas,
+      });
 
-    carregarDados();
+      carregarDados();
 
-    mostrarMensagem("Módulo atualizado!");
+      mostrarMensagem("Módulo atualizado!");
 
-    fecharModal();
+      fecharModal();
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(error.message || "Erro ao atualizar módulo.", "erro");
+    }
   }
 
   // =========================
   // EXCLUIR
   // =========================
   async function deletarModulo() {
-    const total = await contarAulas(moduloSelecionado.id);
+    try {
+      const total = await contarAulas(moduloSelecionado.id);
 
-    if (total > 0) {
-      mostrarMensagem(
-        `Não é possível excluir.
+      if (total > 0) {
+        mostrarMensagem(
+          `Não é possível excluir.
 Existe(m)
 ${total} aula(s)
 vinculada(s).`,
-        "erro",
+          "erro",
+        );
+
+        return;
+      }
+
+      await excluirModulo(moduloSelecionado.id);
+
+      carregarDados();
+
+      mostrarMensagem("Módulo excluído", "erro");
+
+      const modalConfirmacao = bootstrap.Modal.getInstance(
+        document.getElementById("modalConfirmacao"),
       );
 
-      return;
+      modalConfirmacao.hide();
+
+      document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+
+      document.body.classList.remove("modal-open");
+      document.body.style = "";
+    } catch (error) {
+      console.error(error);
+
+      mostrarMensagem(error.message || "Erro ao excluir módulo.", "erro");
     }
-
-    await excluirModulo(moduloSelecionado.id);
-
-    carregarDados();
-
-    mostrarMensagem("Módulo excluído", "erro");
-
-    const modalConfirmacao = bootstrap.Modal.getInstance(
-      document.getElementById("modalConfirmacao"),
-    );
-
-    modalConfirmacao.hide();
-
-    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-
-    document.body.classList.remove("modal-open");
-
-    document.body.style = "";
   }
 
   // =========================

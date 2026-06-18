@@ -123,28 +123,33 @@ export default function Aulas({ aulas, setAulas, modulos, busca }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    await editarAula(aulaSelecionada.id, {
-      nome: novoNome,
-      descricao: novaDescricao,
-    });
+    try {
+      await editarAula(aulaSelecionada.id, {
+        nome: novoNome,
+        descricao: novaDescricao,
+      });
 
-    const atualizadas = aulas.map((a) => {
-      if (a.id === aulaSelecionada.id) {
-        return {
-          ...a,
-          nome: novoNome,
-          descricao: novaDescricao,
-        };
-      }
+      const atualizadas = aulas.map((a) => {
+        if (a.id === aulaSelecionada.id) {
+          return {
+            ...a,
+            nome: novoNome,
+            descricao: novaDescricao,
+          };
+        }
 
-      return a;
-    });
+        return a;
+      });
 
-    setAulas(atualizadas);
+      setAulas(atualizadas);
 
-    mostrarMensagem("Aula atualizada!");
+      mostrarMensagem("Aula atualizada!");
 
-    fecharModal();
+      fecharModal();
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(error.message || "Erro ao atualizar aula.", "erro");
+    }
   }
 
   // =========================
@@ -164,27 +169,32 @@ export default function Aulas({ aulas, setAulas, modulos, busca }) {
   // EXCLUIR
   // =========================
   async function deletarAula() {
-    await excluirAula(aulaSelecionada.id);
+    try {
+      await excluirAula(aulaSelecionada.id);
 
-    const atualizadas = aulas.filter((a) => a.id !== aulaSelecionada.id);
+      const atualizadas = aulas.filter((a) => a.id !== aulaSelecionada.id);
 
-    setAulas(atualizadas);
+      setAulas(atualizadas);
 
-    mostrarMensagem("Aula excluída", "erro");
+      mostrarMensagem("Aula excluída");
 
-    const modalConfirmacao = bootstrap.Modal.getInstance(
-      document.getElementById("modalConfirmacao"),
-    );
+      const modalConfirmacao = bootstrap.Modal.getInstance(
+        document.getElementById("modalConfirmacao"),
+      );
 
-    if (modalConfirmacao) {
-      modalConfirmacao.hide();
+      if (modalConfirmacao) {
+        modalConfirmacao.hide();
+      }
+
+      document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+
+      document.body.classList.remove("modal-open");
+      document.body.style = "";
+    } catch (error) {
+      console.error(error);
+
+      mostrarMensagem(error.message || "Erro ao excluir aula.", "erro");
     }
-
-    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
-
-    document.body.classList.remove("modal-open");
-
-    document.body.style = "";
   }
 
   return (
@@ -391,11 +401,12 @@ export default function Aulas({ aulas, setAulas, modulos, busca }) {
       </div>
 
       <ModalAula
+        titulo="Editar Aula"
         novoNome={novoNome}
         setNovoNome={setNovoNome}
         novaDescricao={novaDescricao}
         setNovaDescricao={setNovaDescricao}
-        salvarEdicao={salvarEdicao}
+        acao={salvarEdicao}
       />
 
       <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />
