@@ -60,6 +60,10 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // =========================
   // STATES
   // =========================
+  const [carregando, setCarregando] = useState(false);
+
+  const [excluindo, setExcluindo] = useState(false);
+
   const [nome, setNome] = useState("");
 
   const [ferramentas, setFerramentas] = useState("");
@@ -102,6 +106,8 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   async function adicionarModulo() {
     if (!nome.trim()) return;
 
+    setCarregando(true);
+
     try {
       await criarModulo({
         nome,
@@ -116,7 +122,10 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
       mostrarMensagem("Módulo criado!");
     } catch (error) {
       console.error(error);
+
       mostrarMensagem(error.message || "Erro ao criar módulo.", "erro");
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -150,6 +159,7 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
+    setCarregando(true);
     try {
       await editarModulo(moduloSelecionado.id, {
         nome: novoNome,
@@ -164,6 +174,8 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
     } catch (error) {
       console.error(error);
       mostrarMensagem(error.message || "Erro ao atualizar módulo.", "erro");
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -171,6 +183,7 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EXCLUIR
   // =========================
   async function deletarModulo() {
+    setExcluindo(true);
     try {
       const total = await contarAulas(moduloSelecionado.id);
 
@@ -206,6 +219,8 @@ vinculada(s).`,
       console.error(error);
 
       mostrarMensagem(error.message || "Erro ao excluir módulo.", "erro");
+    } finally {
+      setExcluindo(false);
     }
   }
 
@@ -434,6 +449,8 @@ vinculada(s).`,
         setNovasFerramentas={setNovasFerramentas}
         salvarEdicao={salvarEdicao}
         deletarModulo={deletarModulo}
+        carregando={carregando}
+        excluindo={excluindo}
       />
 
       <Toast mensagem={toastMensagem} tipo={toastTipo} mostrar={mostrarToast} />

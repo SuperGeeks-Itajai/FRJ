@@ -6,6 +6,8 @@ export default function ModalModulo({
   setNovasFerramentas,
 
   salvarEdicao,
+  carregando,
+  excluindo,
 }) {
   return (
     <div className="modal fade" id="modalModulo" tabIndex="-1">
@@ -73,12 +75,13 @@ export default function ModalModulo({
               className="btn btn-danger"
               data-bs-toggle="modal"
               data-bs-target="#modalConfirmacao"
+              disabled={excluindo}
             >
-              Excluir
+              {excluindo ? "Excluindo..." : "Excluir"}
             </button>
 
-            <button className="btn btn-light" onClick={salvarEdicao}>
-              Salvar
+            <button className="btn btn-light" onClick={salvarEdicao} disabled={carregando}>
+                {carregando ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </div>

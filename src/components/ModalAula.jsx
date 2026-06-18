@@ -5,6 +5,8 @@ export default function ModalAula({
   novaDescricao,
   setNovaDescricao,
   acao,
+  carregando,
+  excluindo,
 }) {
   return (
     <div className="modal fade" id="modalAula" tabIndex="-1">
@@ -40,8 +42,12 @@ export default function ModalAula({
               Cancelar
             </button>
 
-            <button className="btn btn-success" onClick={acao}>
-              Salvar
+            <button
+              className="btn btn-danger"
+              onClick={acao}
+              disabled={carregando || excluindo}
+            >
+              {carregando ? "Salvando..." : excluindo ? "Excluindo..." : "Salvar"}
             </button>
           </div>
         </div>

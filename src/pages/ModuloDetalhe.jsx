@@ -23,6 +23,10 @@ export default function ModuloDetalhe({ busca }) {
   // =========================
   // STATES
   // =========================
+  const [carregando, setCarregando] = useState(false);
+
+  const [excluindo, setExcluindo] = useState(false);
+
   const [modulo, setModulo] = useState(null);
 
   const [aulas, setAulas] = useState([]);
@@ -99,6 +103,8 @@ export default function ModuloDetalhe({ busca }) {
   async function salvarNovaAula() {
     if (!novoNome.trim()) return;
 
+    setCarregando(true);
+
     try {
       const aula = await criarAula({
         nome: novoNome,
@@ -114,6 +120,8 @@ export default function ModuloDetalhe({ busca }) {
     } catch (error) {
       console.error(error);
       mostrarMensagem(error.message || "Erro ao criar aula.", "erro");
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -191,6 +199,7 @@ export default function ModuloDetalhe({ busca }) {
   // EXCLUIR
   // =========================
   async function deletarAula() {
+    setExcluindo(true);
     try {
       await excluirAula(aulaSelecionada.id);
 
@@ -215,6 +224,8 @@ export default function ModuloDetalhe({ busca }) {
       console.error(error);
 
       mostrarMensagem(error.message || "Erro ao excluir aula.", "erro");
+    } finally {
+      setExcluindo(false);
     }
   }
 
@@ -282,6 +293,8 @@ export default function ModuloDetalhe({ busca }) {
         novaDescricao={novaDescricao}
         setNovaDescricao={setNovaDescricao}
         acao={aulaSelecionada ? salvarEdicao : salvarNovaAula}
+        carregando={carregando}
+        excluindo={excluindo}
       />
 
       {/* TOAST */}
