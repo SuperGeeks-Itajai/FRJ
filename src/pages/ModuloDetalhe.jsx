@@ -304,10 +304,11 @@ export default function ModuloDetalhe({ busca }) {
       <ModalConfirmacao
         titulo="Confirmar Exclusão"
         mensagem={`
-Deseja realmente excluir:
-"${aulaSelecionada?.nome}" ?
-`}
+        Deseja realmente excluir:
+        "${aulaSelecionada?.nome}" ?
+        `}
         onConfirmar={deletarAula}
+        carregando = {carregando}
       />
     </div>
   );
