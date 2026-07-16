@@ -16,6 +16,7 @@ import TabelaAulas from "../components/TabelaAulas";
 import ModalAula from "../components/ModalAula";
 import Toast from "../components/Toast";
 import ModalConfirmacao from "../components/ModalConfirmacao";
+import useToast from "../hooks/useToast";
 
 export default function ModuloDetalhe({ busca }) {
   const { id } = useParams();
@@ -39,29 +40,13 @@ export default function ModuloDetalhe({ busca }) {
 
   const [pagina, setPagina] = useState(1);
 
-  // TOAST
-  const [toastMensagem, setToastMensagem] = useState("");
-
-  const [toastTipo, setToastTipo] = useState("sucesso");
-
-  const [mostrarToast, setMostrarToast] = useState(false);
-
   const aulasPorPagina = 15;
 
   // =========================
   // TOAST
   // =========================
-  function mostrarMensagem(mensagem, tipo = "sucesso") {
-    setToastMensagem(mensagem);
-
-    setToastTipo(tipo);
-
-    setMostrarToast(true);
-
-    setTimeout(() => {
-      setMostrarToast(false);
-    }, 3000);
-  }
+  const { toastMensagem, toastTipo, mostrarToast, mostrarMensagem } =
+    useToast();
 
   // =========================
   // CARREGAR
@@ -308,7 +293,7 @@ export default function ModuloDetalhe({ busca }) {
         "${aulaSelecionada?.nome}" ?
         `}
         onConfirmar={deletarAula}
-        carregando = {carregando}
+        carregando={carregando}
       />
     </div>
   );
