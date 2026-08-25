@@ -293,7 +293,7 @@ export default function ModuloDetalhe({ busca }) {
         "${aulaSelecionada?.nome}" ?
         `}
         onConfirmar={deletarAula}
-        carregando={carregando}
+        carregando={excluindo}
       />
     </div>
   );

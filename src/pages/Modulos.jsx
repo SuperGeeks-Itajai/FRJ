@@ -60,9 +60,13 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // =========================
   // STATES
   // =========================
-  const [carregando, setCarregando] = useState(false);
+  //const [carregando, setCarregando] = useState(false);
 
-  const [excluindo, setExcluindo] = useState(false);
+  //const [excluindo, setExcluindo] = useState(false);
+  
+  const [carregando] = useState(false);
+
+  const [excluindo] = useState(false);
 
   const [nome, setNome] = useState("");
 
@@ -106,8 +110,6 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   async function adicionarModulo() {
     if (!nome.trim()) return;
 
-    setCarregando(true);
-
     try {
       await criarModulo({
         nome,
@@ -124,8 +126,6 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
       console.error(error);
 
       mostrarMensagem(error.message || "Erro ao criar módulo.", "erro");
-    } finally {
-      setCarregando(false);
     }
   }
 
@@ -159,7 +159,6 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EDITAR
   // =========================
   async function salvarEdicao() {
-    setCarregando(true);
     try {
       await editarModulo(moduloSelecionado.id, {
         nome: novoNome,
@@ -173,9 +172,8 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
       fecharModal();
     } catch (error) {
       console.error(error);
+
       mostrarMensagem(error.message || "Erro ao atualizar módulo.", "erro");
-    } finally {
-      setCarregando(false);
     }
   }
 
@@ -183,7 +181,6 @@ export default function Modulos({ modulos, aulas, busca, carregarDados }) {
   // EXCLUIR
   // =========================
   async function deletarModulo() {
-    setExcluindo(true);
     try {
       const total = await contarAulas(moduloSelecionado.id);
 
@@ -209,18 +206,19 @@ vinculada(s).`,
         document.getElementById("modalConfirmacao"),
       );
 
-      modalConfirmacao.hide();
+      if (modalConfirmacao) {
+        modalConfirmacao.hide();
+      }
 
       document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
 
       document.body.classList.remove("modal-open");
+
       document.body.style = "";
     } catch (error) {
       console.error(error);
 
       mostrarMensagem(error.message || "Erro ao excluir módulo.", "erro");
-    } finally {
-      setExcluindo(false);
     }
   }
 
